@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Doctor</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Noto+Sans+Bengali:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- =========================
+       Header
+  ========================== -->
+  <header class="site-header">
+    <div class="title">
+      <h1 id="nameDisplay">Name Here</h1>
+      <p id="subtitleDisplay">To be doctor...</p>
+    </div>
+    <button id="openSettings" class="icon-btn" title="Edit">⚙️</button>
+  </header>
+
+  <!-- =========================
+       Main Frame & Background
+========================== -->
+<main class="frame">
+  <div id="photoArea" class="photo-area" aria-label="Background photo area"></div>
+  <div class="overlay">
+
+    <!-- Personal Notes -->
+    <section class="card notes">
+      <h2>Personal Notes</h2>
+
+      <div class="notes-container">
+        <textarea id="notes" rows="8" placeholder="Write anything… (autosaves)"></textarea>
+        <div class="drag-bar"></div>
+      </div>
+
+      <div class="row right">
+        <button class="btn ghost" id="exportNotes">Export</button>
+        <label class="btn ghost file">
+          Import <input type="file" id="importNotes" accept=".txt">
+        </label>
+        <button class="btn danger ghost" id="clearNotes">Clear</button>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+
+  <!-- =========================
+       Class Routine (Left)
+  ========================== -->
+  <section class="card routine">
+    <h2>Marine's Routine</h2>
+    <div class="row">
+      <button class="btn" id="openRoutine" type="button">Make a routine</button>
+      <button class="btn ghost" id="clearRoutine" type="button">Clear</button>
+    </div>
+    <div id="routineView" class="routine-view">No routine yet.</div>
+  </section>
+
+  <!-- Routine Builder Dialog -->
+  <dialog id="routineDialog">
+    <form method="dialog" class="settings-form">
+      <h3>Select weekdays</h3>
+      <div class="weekday-grid" id="weekdayGrid">
+        <label><input type="checkbox" value="Saturday"> Sat</label>
+        <label><input type="checkbox" value="Sunday"> Sun</label>
+        <label><input type="checkbox" value="Monday"> Mon</label>
+        <label><input type="checkbox" value="Tuesday"> Tue</label>
+        <label><input type="checkbox" value="Wednesday"> Wed</label>
+        <label><input type="checkbox" value="Thursday"> Thu</label>
+        <label><input type="checkbox" value="Friday"> Fri</label>
+      </div>
+      <h3>Add class</h3>
+      <div class="row" style="gap:8px; align-items:stretch">
+        <select id="routineDay"></select>
+        <input type="text" id="className" placeholder="Class name">
+        <div class="picker-wrapper">
+        <input type="time" id="classTime">
+        <div class="picker-label">Time</div>
+      </div>
+
+        <button class="btn" id="addClass" type="button">Add</button>
+        <button class="btn" id="updateClass" type="button" style="display:none">Update</button>
+        <button class="btn ghost" id="cancelEdit" type="button" style="display:none">Cancel</button>
+      </div>
+      <div id="routineDraft" class="routine-draft"></div>
+      <menu>
+        <button class="btn ghost" value="cancel">Close</button>
+        <button class="btn" id="saveRoutine" value="default">Done</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <!-- =========================
+       Upcoming Events (Right)
+  ========================== -->
+  <section class="card events">
+    <h2>Upcoming Events</h2>
+    <div class="row">
+      <input type="text" id="eventName" placeholder="Event name">
+      <div class="picker-wrapper">
+      <input type="date" id="eventDate">
+      <div class="picker-label">Date</div>
+    </div>
+      <button id="addEvent" class="btn">Add</button>
+    </div>
+    <div id="eventList"></div>
+  </section>
+
+  <!-- =========================
+       Settings Modal
+  ========================== -->
+  <dialog id="settings">
+    <form method="dialog" class="settings-form">
+      <h3>Edit Header & Photo</h3>
+      <label>নাম / Name
+        <input id="nameInput" type="text" placeholder="Your name">
+      </label>
+      <label>বাংলা লাইন / Subtitle
+        <input id="subtitleInput" type="text" placeholder="বাংলা সাবটাইটেল">
+      </label>
+      <div class="upload">
+        <p>Background Photo</p>
+        <label class="btn file">Choose Photo
+          <input id="photoInput" type="file" accept="image/*">
+        </label>
+        <button class="btn ghost" id="removePhoto" type="button">Remove Photo</button>
+      </div>
+      <menu>
+        <button class="btn ghost" value="cancel">Close</button>
+        <button class="btn" id="saveSettings" value="default">Save</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <!-- =========================
+       Firebase Auth + Firestore
+  ========================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIfixZDEZuodWMvk1qIl3pjo13kowvUVk",
+      authDomain: "student-doctor-daa8f.firebaseapp.com",
+      projectId: "student-doctor-daa8f",
+      storageBucket: "student-doctor-daa8f.appspot.com",
+      messagingSenderId: "85022967516",
+      appId: "1:85022967516:web:dbfe1a39591abea1cc1619"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const userDocRef = doc(db, "siteData", "defaultUser");
+
+    // Firestore save/load helpers
+    window.saveData = async (key, value) => {
+      await setDoc(userDocRef, { [key]: value }, { merge: true });
+    };
+    window.loadData = async (key) => {
+      const snap = await getDoc(userDocRef);
+      const data = snap.data() || {};
+      return data[key] || null;
+    };
+
+    // Ensure app waits until login completes
+    window.firebaseReadyPromise = new Promise((resolve, reject) => {
+      signInWithEmailAndPassword(auth, "dr-marine@med-buddy.com", "med1234")
+        .then(() => {
+          console.log("✅ Firebase login successful");
+          resolve();
+        })
+        .catch(err => {
+          console.error("❌ Firebase login failed", err);
+          reject(err);
+        });
+    });
+  </script>
+
+  <!-- =========================
+       Main App JS
+  ========================== -->
+  <script type="module" src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+</html>

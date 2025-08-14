@@ -1,0 +1,551 @@
+/* =====================
+   Root Variables
+===================== */
+:root {
+  --bg: #151f32;
+  --panel: #171b23;
+  --card: #1f2430;
+  --text: #e6e6e6;
+  --muted: #a9b1c3;
+  --accent: #5cc8ff;
+  --danger: #ff6b6b;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* =====================
+   Global Resets & Body
+===================== */
+* { box-sizing: border-box }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, "Noto Sans Bengali", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* =====================
+   Site Header
+===================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
+}
+
+.title h1 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 42px);
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.title p {
+  margin: .2rem 0 0 0;
+  color: var(--muted);
+}
+
+.icon-btn {
+  border: none;
+  background: var(--panel);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+/* =====================
+   Frame & Photo Area
+===================== */
+.frame {
+  position: relative;
+  width: min(820px, 92vw);
+  margin: 10px auto 60px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  min-height: 88vh;
+}
+
+.photo-area {
+  position: absolute;
+  inset: 0;
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: .28;
+  filter: saturate(.95) contrast(1.00);
+}
+
+.overlay {
+  position: relative;
+  padding: clamp(16px, 2vw, 28px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  max-width: 100%;
+}
+
+/* =====================
+   Notes Container
+===================== */
+
+.notes-container {
+  position: relative;
+}
+
+.drag-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: ns-resize;
+  border-radius: 0 0 6px 6px;
+}
+.drag-bar:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+
+
+/* =====================
+   Cards Layout
+===================== */
+.card.notes { grid-column: 1 / -1; }
+
+
+.card.counter {
+  position: fixed;
+  top: 120px;
+  right: 40px;
+  width: 280px;
+  z-index: 1000;
+}
+
+.card.events {
+  position: fixed;
+  top: 120px;       /* same as counter */
+  right: 40px;      /* same as counter */
+  width: 280px;
+  z-index: 1000;
+}
+
+.card.routine {
+  position: fixed;
+  top: 120px;
+  left: 40px;
+  width: 280px;
+  z-index: 1000;
+}
+
+.card.events input[type="text"],
+.card.events input[type="date"] {
+  background: #0f1320;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+
+/* Align the picker with the button; put the label under it */
+.picker-wrapper{
+  position: relative;
+  display: flex;
+  align-items: center;   /* vertical center the input in the row */
+  height: 40px;          /* match your button/input height visually */
+}
+
+/* date/time inputs inside wrapper */
+.picker-wrapper input[type="date"],
+.picker-wrapper input[type="time"]{
+  height: 40px;          /* same visual height as button */
+  line-height: 40px;     /* keep text centered inside */
+  margin: 0;             /* remove extra vertical offset */
+  box-sizing: border-box;
+}
+
+#eventDate {
+  margin-top: -3px;   /* tweak -2px … -5px if needed */
+}
+
+/* the static "Date"/"Time" text appears just below the picker,
+   but doesn't affect row height/alignment */
+.picker-wrapper .picker-label{
+  position: absolute;
+  top: 100%;             /* directly below the wrapper */
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* give a little space below the whole picker+label block */
+.picker-wrapper + *{
+  /* optional: ensures next element doesn't crowd the label */
+  margin-top: 6px;
+}
+
+/* Add extra space below Time picker in routine dialog */
+#routineDialog .picker-wrapper {
+  margin-bottom: 12px; /* adjust as needed so label clears border */
+}
+
+
+/* =====================
+   Mobile Layout
+===================== */
+@media (max-width: 900px) {
+  .overlay { 
+    grid-template-columns: 1fr; 
+  }
+
+  .card.notes, .card.counter, .card.events, .card.routine {
+    position: static;
+    width: 100%;
+    margin: 12px auto 0;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  /* Extra gap before Upcoming Events */
+  .card.events {
+    margin-top: 28px; /* Increase gap here */
+  }
+}
+
+/* =====================
+   Typography
+===================== */
+h2 { margin: 0 0 10px 0; font-size: 20px; }
+
+/* =====================
+   Form Inputs
+===================== */
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row.right { justify-content: flex-end; }
+
+input[type="date"],
+input[type="text"],
+textarea {
+  background: #0f1320;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  background: rgba(31,36,48,.75);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 12px;
+  outline: none;
+}
+
+/* =====================
+   Buttons
+===================== */
+.btn {
+  border: 1px solid rgba(255,255,255,.12);
+  background: var(--accent);
+  color: #001018;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn.danger { background: var(--danger); color: #250000; }
+.btn.danger.ghost { background: transparent; color: var(--danger); }
+
+.btn.file {
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: normal;
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.btn.file input { display: none; }
+
+/* =====================
+   Countdown
+===================== */
+.countdown { margin-top: 8px; font-size: 18px; color: var(--text); }
+
+/* =====================
+   Dialog Styles
+===================== */
+dialog::backdrop { background: rgba(0,0,0,.55); }
+dialog {
+  border: none;
+  padding: 0;
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--text);
+  width: min(560px, 92vw);
+}
+
+.settings-form { padding: 18px; }
+.settings-form label { display: block; margin: 10px 0; }
+.settings-form input[type="text"] { width: 100%; }
+
+.upload { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-top: 14px; }
+
+/* =====================
+   Routine View
+===================== */
+.routine-view { margin-top: 8px; font-size: 14px; line-height: 1.35; }
+.routine-view .day { font-weight: 700; margin-top: 8px; }
+.routine-view .item { margin-left: 8px; opacity: .9; }
+
+/* Dialog helpers */
+.weekday-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 8px 12px;
+  margin: 8px 0 12px;
+}
+
+.routine-draft {
+  margin-top: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(31,36,48,.5);
+  font-size: 13px;
+}
+
+/* Routine Dialog Buttons */
+#routineDialog button {
+  background: rgba(31,36,48,.75);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+#routineDialog button:hover { background: rgba(92,200,255,0.2); }
+
+#routineDialog button[data-action="delete"] {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+#routineDialog button[data-action="delete"]:hover {
+  background: rgba(255,107,107,0.15);
+}
+
+/* Time Picker & Dropdown Styling */
+#classTime,
+#routineDay {
+  background: rgba(129, 131, 245, 0.75);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  height: 30px;        /* match Add button height */
+  padding: 0 8px;      /* keep left-right padding only */
+  outline: none;
+  box-sizing: border-box;
+}
+
+
+#classTime:focus,
+#routineDay:focus { border-color: var(--accent); }
+
+#routineDay {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px 8px;
+  padding-right: 28px;
+}
+
+/* Full time picker style */
+input[type="time"] {
+  background-color: #0f1320; /* dark background */
+  color: var(--text); /* light text color */
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Make the placeholder and chosen time text the same color */
+input[type="time"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+input[type="time"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  color: var(--text);
+}
+
+/* Make the clock icon white */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+
+
+/* =====================
+   Upcoming Events
+===================== */
+.event-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 6px 0;
+}
+
+.event-name { flex: 1; }
+
+.event-actions button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  padding: 4px 8px;
+  margin-left: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.event-actions button.delete { color: var(--danger); }
+
+
+/* Full date picker style */
+input[type="date"] {
+  background-color: #0f1320;      /* dark background */
+  color: var(--text);             /* your light text color */
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+/* Make the placeholder and chosen date text the same color */
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: var(--text);
+}
+
+/* Make the calendar icon white */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* === Progress bar container === */
+.progress-line {
+  position: relative;
+  background: rgba(255,255,255,0.08);
+  height: 6px;
+  border-radius: 6px;
+  overflow: hidden;
+  direction: rtl;       /* fill from right */
+  margin: 6px 0;
+}
+
+.progress-line > span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 6px;
+  transition: width .35s ease;
+  float: right;         /* anchor to right edge */
+}
+
+/* turn bar red when less than or equal to 5 days left */
+.progress-line.low-time > span { background: var(--danger); }
+
+/* layout bits used above */
+.event-item{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:14px;
+}
+
+.event-main{
+  flex:1;
+  min-width:0;
+}
+
+.event-name{
+  font-weight:700;
+  margin-bottom:6px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.event-meta{
+  font-size:13px;
+  color:var(--muted);
+}
+
+.event-meta strong{
+  color:var(--text);
+  font-weight:600;
+}
+
+.event-meta .date{
+  opacity:.9;
+  margin-left:6px;
+}
+
+/* --- Mobile adjustments (smaller bar & stacked buttons) --- */
+@media (max-width: 768px) {
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .progress-row .progress-line {
+    flex: none;       /* don’t stretch */
+    width: 50%;       /* exactly half width */
+    height: 4px;      /* slimmer for mobile */
+  }
+  .progress-row .event-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
