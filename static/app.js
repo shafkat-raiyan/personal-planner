@@ -328,37 +328,84 @@ const startOfDay = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; 
 const daysBetween = (a,b)=> Math.ceil((b-a)/(24*60*60*1000));
 const pretty = s => new Date(s).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
 
-function renderEvents(items){
-  items = (items||[]).slice().sort((a,b)=> (a.date||'') < (b.date||'') ? -1 : 1);
-  const today = startOfDay(new Date());
-  if (eventList) eventList.innerHTML = '';
-  for (const ev of items){
-    const created = ev.created || ev.date;
-    const start   = startOfDay(new Date(created));
-    const target  = startOfDay(new Date(ev.date));
-    const total   = Math.max(1, daysBetween(start, target));
-    const left    = Math.max(0, daysBetween(today, target));
-    const pct     = clamp(Math.round((left/total)*100), 0, 100);
+function renderEvents(items) {
+  // sort asc and group by month
+  items = (items || [])
+    .slice()
+    .sort((a, b) => (a.date || '') < (b.date || '') ? -1 : 1);
 
-    const row = document.createElement('div');
-    row.className = 'event-item';
-    row.innerHTML = `
-      <div class="event-main">
-        <div class="event-name">${ev.name || '(no title)'}</div>
+  const today = startOfDay(new Date());
+  const groups = new Map(); // "Aug 2025" => [events]
+
+  for (const ev of items) {
+    const monthKey = new Date(ev.date || Date.now())
+      .toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    if (!groups.has(monthKey)) groups.set(monthKey, []);
+    groups.get(monthKey).push(ev);
+  }
+
+  eventList.innerHTML = '';
+
+  for (const [month, list] of groups.entries()) {
+    // Check if this month group is urgent (any event ≤ 5 days left)
+    const hasUrgent = list.some(ev => {
+      const target = startOfDay(new Date(ev.date));
+      const left = Math.max(0, daysBetween(today, target));
+      return left <= 5;
+    });
+
+    // month header with per-group accent variable
+    const mg = document.createElement('div');
+    mg.className = 'month-group';
+    mg.style.setProperty('--month-accent', hasUrgent ? 'var(--danger)' : 'var(--accent)');
+    mg.innerHTML = `<div class="month-title">${month}</div>`;
+    eventList.appendChild(mg);
+
+    // events in that month
+    for (const ev of list) {
+      const created = ev.created || ev.date;
+      const start = startOfDay(new Date(created));
+      const target = startOfDay(new Date(ev.date));
+      const total = Math.max(1, daysBetween(start, target));
+      const left = Math.max(0, daysBetween(today, target));
+      const pct = clamp(Math.round((left / total) * 100), 0, 100);
+      const urgent = left <= 5;
+
+      const row = document.createElement('div');
+      row.className = 'event-item';
+
+      row.innerHTML = `
+        <div class="event-head">
+          <div class="event-name">${ev.name || '(no title)'}</div>
+          <span class="badge ${urgent ? 'urgent' : ''}">${left} day${left === 1 ? '' : 's'} left</span>
+          <span class="badge date">${pretty(ev.date)}</span>
+        </div>
+
         <div class="progress-row">
-          <div class="progress-line ${left<=5?'low-time':''}"><span style="width:${pct}%"></span></div>
+          <div class="progress-line ${urgent ? 'low-time' : ''}">
+            <span style="width:0%"></span>
+          </div>
           <span class="event-actions">
-            <button class="edit"   data-id="${ev.id}">Edit</button>
+            <button class="edit" data-id="${ev.id}">Edit</button>
             <button class="delete" data-id="${ev.id}">Delete</button>
           </span>
         </div>
-        <div class="event-meta">
-          <strong>${left}</strong> days left <span class="date">(${pretty(ev.date)})</span>
-        </div>
-      </div>`;
-    eventList.appendChild(row);
+      `;
+
+      mg.appendChild(row);
+
+      // animate in
+      requestAnimationFrame(() => {
+        row.classList.add('appear');
+        // animate bar after layout
+        const bar = row.querySelector('.progress-line > span');
+        requestAnimationFrame(() => { bar.style.width = pct + '%'; });
+      });
+    }
   }
 }
+
+
 
 function loadEventsFromCache(){
   if (!isLoggedIn()) return;
@@ -454,31 +501,75 @@ async function saveRoutineCloud(data){
   await window.saveData(RK, JSON.stringify(data));
 }
 
-function renderRoutineViewFromData(data){
-  if (!data.days?.length){ routineView.textContent = "No routine yet."; return; }
+function formatTime12h(t = '00:00') {
+  const [h, m] = (t || '00:00').split(':').map(Number);
+  const ap = h >= 12 ? 'PM' : 'AM';
+  const hh = String(h % 12 || 12).padStart(2, '0');
+  const mm = String(m ?? 0).padStart(2, '0');
+  return `${hh}:${mm} ${ap}`;
+}
+
+function renderRoutineViewFromData(data) {
   const container = document.createElement('div');
-  data.days.forEach(day=>{
-    const items = (data.items?.[day]||[]).slice().sort((a,b)=> (a.time||"")<(b.time||"") ? -1:1);
-    const dayEl = document.createElement('div'); dayEl.className='day'; dayEl.textContent=day;
-    container.appendChild(dayEl);
-    if (!items.length){
-      const none=document.createElement('div'); none.className='item'; none.textContent='—'; container.appendChild(none);
+  container.className = 'routine-view';
+
+  const days = Array.isArray(data?.days) ? data.days : [];
+  if (!days.length) {
+    container.textContent = 'No routine yet.';
+    routineView.innerHTML = '';
+    routineView.appendChild(container);
+    return;
+  }
+
+  days.forEach(day => {
+    const items = (data.items?.[day] || [])
+      .slice()
+      .sort((a, b) => (a.time || '') < (b.time || '') ? -1 : 1);
+
+    const block = document.createElement('div');
+    block.className = 'day-block';
+
+    // Day header
+    const head = document.createElement('div');
+    head.className = 'day-head';
+    head.innerHTML = `
+      <div class="day-title">${day}</div>
+      <div class="day-count">${items.length ? `${items.length} class${items.length>1?'es':''}` : 'No class'}</div>
+    `;
+    block.appendChild(head);
+
+    // Timeline area
+    const tl = document.createElement('div');
+    tl.className = 'timeline';
+
+    if (!items.length) {
+      const none = document.createElement('div');
+      none.className = 'class-empty';
+      none.textContent = '—';
+      tl.appendChild(none);
     } else {
-      items.forEach(it=>{
-        const [h,m] = (it.time||'00:00').split(':').map(Number);
-        const ap = h>=12 ? 'PM':'AM';
-        const hh = String(h%12||12).padStart(2,'0');
-        const mm = String(m).padStart(2,'0');
-        const line = document.createElement('div');
-        line.className = 'item';
-        line.textContent = `${hh}:${mm} ${ap} — ${it.name}`;
-        container.appendChild(line);
+      items.forEach(it => {
+        const row = document.createElement('div');
+        row.className = 'class-item';
+        row.innerHTML = `
+          <span class="dot" aria-hidden="true"></span>
+          <span class="time-pill">${formatTime12h(it.time)}</span>
+          <span class="subject">${it.name || ''}</span>
+        `;
+        tl.appendChild(row);
       });
     }
+
+    block.appendChild(tl);
+    container.appendChild(block);
   });
+
   routineView.innerHTML = '';
   routineView.appendChild(container);
 }
+
+
+
 
 // open dialog
 openRoutine?.addEventListener('click', async ()=>{
@@ -510,27 +601,79 @@ async function getDialogState(){
   const days = Array.from(weekdayGrid.querySelectorAll('input[type="checkbox"]:checked')).map(c=>c.value);
   const data = getRoutineFromCache(); data.days = days.length ? days : []; return data;
 }
-async function renderDraft(data){
+async function renderDraft(data) {
   const wrap = document.createElement('div');
-  data.days.forEach(day=>{
-    const items = (data.items?.[day]||[]).slice().sort((a,b)=> (a.time||'')<(b.time||'')?-1:1);
-    const head = document.createElement('div'); head.style.fontWeight='700'; head.style.marginTop='8px'; head.textContent=day; wrap.appendChild(head);
-    if (!items.length){
-      const none=document.createElement('div'); none.style.opacity=.8; none.textContent='—'; wrap.appendChild(none); return;
+
+  (data.days || []).forEach(day => {
+    const items = (data.items?.[day] || [])
+      .slice()
+      .sort((a, b) => (a.time || '') < (b.time || '') ? -1 : 1);
+
+    // Day header
+    const head = document.createElement('div');
+    head.className = 'day-head';
+    head.textContent = day;
+    wrap.appendChild(head);
+
+    if (!items.length) {
+      const none = document.createElement('div');
+      none.className = 'class-empty';
+      none.textContent = '—';
+      wrap.appendChild(none);
+      return;
     }
-    items.forEach(it=>{
+
+    // Rows
+    items.forEach(it => {
       if (!it.id) it.id = uid();
-      const [h,m] = (it.time||'00:00').split(':').map(Number);
-      const ap = h>=12?'PM':'AM'; const hh=String(h%12||12).padStart(2,'0'); const mm=String(m).padStart(2,'0');
-      const row=document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.gap='8px';
-      const left=document.createElement('span'); left.textContent=`${hh}:${mm} ${ap} — ${it.name}`;
-      const actions=document.createElement('div'); actions.className='routine-actions';
-      const ebtn=document.createElement('button'); ebtn.type='button'; ebtn.textContent='Edit'; ebtn.dataset.action='edit'; ebtn.dataset.day=day; ebtn.dataset.id=it.id;
-      const dbtn=document.createElement('button'); dbtn.type='button'; dbtn.textContent='Delete'; dbtn.dataset.action='delete'; dbtn.dataset.day=day; dbtn.dataset.id=it.id; dbtn.style.color='var(--danger)';
-      actions.append(ebtn,dbtn); row.append(left,actions); wrap.appendChild(row);
+
+      const row = document.createElement('div');
+      row.className = 'draft-row';
+
+      // Left side: time pill + wrapped subject
+      const main = document.createElement('div');
+      main.className = 'draft-main';
+
+      const time = document.createElement('span');
+      time.className = 'time-pill';
+      time.textContent = formatTime12h(it.time || '00:00');
+
+      const subj = document.createElement('div');
+      subj.className = 'subject';
+      subj.textContent = it.name || '';
+
+      main.append(time, subj);
+
+      // Right side: actions (slim chips)
+      const actions = document.createElement('div');
+      actions.className = 'routine-actions';
+
+      const ebtn = document.createElement('button');
+      ebtn.type = 'button';
+      ebtn.textContent = 'Edit';
+      ebtn.dataset.action = 'edit';
+      ebtn.dataset.day = day;
+      ebtn.dataset.id = it.id;
+
+      const dbtn = document.createElement('button');
+      dbtn.type = 'button';
+      dbtn.textContent = 'Delete';
+      dbtn.dataset.action = 'delete';
+      dbtn.dataset.day = day;
+      dbtn.dataset.id = it.id;
+
+      actions.append(ebtn, dbtn);
+
+      // Assemble row
+      row.append(main, actions);
+      wrap.appendChild(row);
     });
   });
-  routineDraft.innerHTML=''; routineDraft.appendChild(wrap);
+
+  routineDraft.innerHTML = '';
+  routineDraft.appendChild(wrap);
+
+  // persist draft to cache too
   setRoutineCache(data);
 }
 

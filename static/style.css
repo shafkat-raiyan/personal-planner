@@ -36,21 +36,28 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 22px;
+  padding: 8px 14px; /* much smaller padding */
   background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
 }
 
 .title h1 {
   margin: 0;
-  font-size: clamp(24px, 3vw, 42px);
+  font-size: clamp(18px, 2vw, 28px); /* smaller main title */
   font-weight: 800;
   letter-spacing: .2px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.45);
 }
 
 .title p {
-  margin: .2rem 0 0 0;
-  color: var(--muted);
+  margin: .1rem 0 0 0;
+  color: white;
+  font-size: clamp(11px, 1.1vw, 15px); /* smaller subtitle */
+  opacity: 0.8;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
 }
+
+
 
 .icon-btn {
   border: none;
@@ -96,23 +103,88 @@ html, body {
 }
 
 /* =====================
-   Notes Container
+   Notes Container (WOW factor, simplified)
 ===================== */
-
 .notes-container {
   position: relative;
+  background: rgba(255, 255, 255, 0.05); /* subtle glass look */
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
+.notes-container:hover {
+  box-shadow: 0 6px 26px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+}
+
+/* =====================
+   Notes Textarea
+===================== */
+#notes {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  color: var(--text);
+  resize: none;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+#notes:focus {
+  border-color: rgba(255,255,255,0.3); /* no glow, just subtle */
+  outline: none;
+}
+
+/* =====================
+   Drag Bar (smooth + modern)
+===================== */
 .drag-bar {
   width: 100%;
-  height: 10px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.15);
-  cursor: ns-resize;
   border-radius: 0 0 6px 6px;
+  cursor: ns-resize;
+  transition: background 0.2s ease, height 0.2s ease;
 }
+
 .drag-bar:hover {
-  background: rgba(255, 255, 255, 0.3);
+  height: 10px;
+  background: rgba(255, 255, 255, 0.25);
 }
+
+/* =====================
+   Notes Buttons
+===================== */
+.row.right .btn {
+  border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.row.right .btn:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.btn.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn.danger:hover {
+  background: var(--danger);
+  color: white;
+}
+
+
 
 
 
@@ -324,9 +396,103 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
 /* =====================
    Routine View
 ===================== */
-.routine-view { margin-top: 8px; font-size: 14px; line-height: 1.35; }
-.routine-view .day { font-weight: 700; margin-top: 8px; }
-.routine-view .item { margin-left: 8px; opacity: .9; }
+
+/* Unified routine card */
+.routine-view {
+  border-radius: 14px;
+  margin-top: 14px; /* a little more breathing room */
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 10px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+  padding: 14px 16px;
+}
+
+.day-block { margin-bottom: 14px; }
+
+.day-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.day-title {
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.day-count {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.08);
+  opacity: .9;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 18px; /* room for the vertical line + dot */
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+  border-radius: 2px;
+}
+
+/* Each class entry now stacks vertically: time on first line, subject below */
+.class-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;        /* << stacks time and subject */
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 0 12px;
+}
+
+/* Glowing dot on the timeline */
+.class-item .dot {
+  position: absolute;
+  left: -10px;
+  top: 12px;                     /* sits near the first line (time) */
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent, #67d1ff);
+  box-shadow: 0 0 0 3px rgba(103,209,255,.18), 0 0 12px rgba(103,209,255,.55);
+}
+
+.time-pill {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  white-space: nowrap;           /* time stays compact */
+}
+
+/* Subject wraps naturally to new lines; no ellipsis */
+.subject {
+  font-weight: 600;
+  white-space: normal;           /* << allow wrapping */
+  word-break: break-word;        /* break long words if needed */
+  overflow: visible;
+  color: var(--text);
+}
+
+.class-empty {
+  opacity: .75;
+  font-style: italic;
+  padding: 2px 0 6px 0;
+}
+
+
 
 /* Dialog helpers */
 .weekday-grid {
@@ -336,7 +502,13 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
   margin: 8px 0 12px;
 }
 
-.routine-draft {
+/* ===================== 
+   Routine Draft (dialog)
+===================== */
+
+/* Container */
+.routine-draft,
+#routineDraft {
   margin-top: 10px;
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 10px;
@@ -345,58 +517,103 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
   font-size: 13px;
 }
 
-/* Routine Dialog Buttons */
-#routineDialog button {
+/* Only style footer buttons (Close / Done) as large buttons */
+#routineDialog menu > button {
   background: rgba(31,36,48,.75);
   color: var(--text);
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 8px;
-  padding: 6px 10px;
+  padding: 6px 12px;
   cursor: pointer;
 }
+#routineDialog menu > button:hover {
+  background: rgba(92,200,255,0.12);
+}
 
-/* Make edit and delete buttons slimmer */
-/* Add this for the container holding the buttons */
-.routine-draft .routine-actions {
+/* ===== Keep Edit/Delete visible even with long text ===== */
+#routineDraft { margin-top: 8px; }
+
+#routineDraft .draft-row {
+  display: grid;
+  grid-template-columns: 1fr auto;   /* left grows, right stays tight */
+  align-items: start;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+#routineDraft .draft-main {
   display: flex;
-  gap: 10px; /* space between Edit and Delete buttons */
-  margin-top: 4px;
+  flex-direction: column;             /* time on first line, subject below */
+  gap: 4px;
+  min-width: 0;                       /* allow wrapping instead of overflow */
 }
 
-/* Remove margin-right from individual buttons */
-#routineDialog button[data-action="edit"],
-#routineDialog button[data-action="delete"] {
-  border-width: 1px;
-  padding: 3px 6px;
+#routineDraft .time-pill {
   font-size: 12px;
-  margin-right: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  white-space: nowrap;
+  align-self: flex-start;
 }
 
-#routineDialog button[data-action="delete"] {
+#routineDraft .subject {
+  white-space: normal;                /* wrap long names */
+  word-break: break-word;             /* break very long words */
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+/* Actions column = slim chips */
+#routineDraft .routine-actions {
+  display: flex;
+  gap: 8px;
+}
+#routineDraft .routine-actions button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+#routineDraft .routine-actions button:hover {
+  background: rgba(92,200,255,0.10);
+}
+#routineDraft .routine-actions button[data-action="delete"] {
   color: var(--danger);
-  border-color: var(--danger);
+  border-color: rgba(255,107,107,.55);
+}
+#routineDraft .routine-actions button[data-action="delete"]:hover {
+  background: rgba(255,107,107,0.12);
 }
 
-#routineDialog button:hover { background: rgba(92,200,255,0.2); }
-#routineDialog button[data-action="delete"]:hover { background: rgba(255,107,107,0.15); }
+/* (Optional) visually separate days in the draft list */
+#routineDraft .day-head {
+  margin-top: 10px;
+  font-weight: 700;
+}
 
-/* Time Picker & Dropdown Styling */
+/* =====================
+   Time Picker & Day Select
+===================== */
 #classTime,
 #routineDay {
-  background: rgba(129, 131, 245, 0.75);
+  height: 34px;                        /* matches Add button feel */
+  padding: 0 10px;
+  background: rgba(129,131,245,0.75);
   color: var(--text);
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 8px;
-  height: 30px;        /* match Add button height */
-  padding: 0 8px;      /* keep left-right padding only */
   outline: none;
   box-sizing: border-box;
 }
-
-
 #classTime:focus,
 #routineDay:focus { border-color: var(--accent); }
 
+/* Nice custom arrow for the select */
 #routineDay {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
@@ -406,16 +623,15 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
   padding-right: 28px;
 }
 
-/* Full time picker style */
+/* Full time picker style (WebKit-friendly) */
 input[type="time"] {
-  background-color: #0f1320; /* dark background */
-  color: var(--text); /* light text color */
+  background-color: #0f1320;
+  color: var(--text);
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;                   /* balanced with 34px height */
+  height: 34px;
 }
-
-/* Make the placeholder and chosen time text the same color */
 input[type="time"]::-webkit-datetime-edit,
 input[type="time"]::-webkit-datetime-edit-fields-wrapper,
 input[type="time"]::-webkit-datetime-edit-text,
@@ -424,8 +640,6 @@ input[type="time"]::-webkit-datetime-edit-minute-field,
 input[type="time"]::-webkit-datetime-edit-ampm-field {
   color: var(--text);
 }
-
-/* Make the clock icon white */
 input[type="time"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
@@ -434,133 +648,156 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 
 /* =====================
-   Upcoming Events
+   UPCOMING EVENTS (clean)
+   — replace your entire events CSS with this
 ===================== */
-.event-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8px;
-  padding: 6px 0;
+
+/* default accent for every month group */
+.card.events .month-group {
+  --month-accent: var(--accent);   /* will be overridden from JS when urgent */
+  margin-top: 18px;                /* a little extra gap below “Date” */
 }
 
-.event-name { flex: 1; }
+.card.events .month-group .month-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 6px 12px;
+  margin: 8px 0 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 
-.event-actions button {
-  background: transparent;
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.12);
-  padding: 4px 8px;
-  margin-left: 6px;
+  /* tie text color to the same variable the bars use */
+  color: var(--month-accent);
+
+  /* subtle backdrop – uses the same color, low alpha */
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--month-accent) 15%, transparent) 0%,
+    transparent 100%
+  );
   border-radius: 6px;
-  cursor: pointer;
 }
 
-.event-actions button.delete { color: var(--danger); }
+/* left strip also uses the same variable */
+.card.events .month-group .month-title::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--month-accent);
+  border-radius: 3px 0 0 3px;
+}
 
+/* if you want extra fallback where color-mix isn't supported */
+@supports not (background: color-mix(in oklab, white 50%, black)) {
+  .card.events .month-group .month-title {
+    background: rgba(120, 170, 255, 0.12); /* mild, generic */
+  }
+}
 
-/* Full date picker style */
-input[type="date"] {
-  background-color: #0f1320;      /* dark background */
-  color: var(--text);             /* your light text color */
-  border: 1px solid rgba(255,255,255,.12);
+/* Glass event card */
+.event-item{
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  margin: 10px 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  box-shadow: 0 2px 10px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(8px);
+  transition: transform .18s ease, box-shadow .18s ease, opacity .25s ease;
+  opacity: 0; transform: translateY(6px);
+}
+.event-item.appear{ opacity:1; transform:translateY(0); }
+.event-item:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
+
+/* Head row: title + badges */
+.event-head{
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+}
+.event-name{ font-weight:800; letter-spacing:.2px; }
+.badge{
+  font-size:12px; padding:2px 8px; border-radius:999px;
+  background: rgba(255,255,255,.08); color: var(--text);
+}
+.badge.urgent{ background: rgba(255,82,82,.18); color:#ff9a9a; }
+.badge.date{ opacity:.85; }
+
+/* Progress + actions */
+.progress-row{
+  display:grid; grid-template-columns: 1fr auto; align-items:center; gap:10px;
+}
+.progress-line{
+  position:relative; height:6px; border-radius:999px; overflow:hidden;
+  background: rgba(255,255,255,.07);
+  direction: rtl;      /* fill from right */
+}
+.progress-line > span{
+  display:block; height:100%; width:0%;
+  border-radius:999px; float:right;
+  background: linear-gradient(90deg, rgba(120,200,255,1), rgba(100,170,255,1));
+  box-shadow: 0 0 12px rgba(120,200,255,.45);
+  transition: width .45s ease;
+}
+.progress-line.low-time > span{
+  background: linear-gradient(90deg, #ff6b6b, #ff3b3b);
+  box-shadow: 0 0 12px rgba(255,90,90,.55);
+}
+
+/* Meta line */
+.event-meta{ margin-top:8px; font-size:13px; color:var(--muted); }
+.event-meta strong{ color:var(--text); }
+
+/* Action pills — force compact and ignore global .btn styles */
+.event-actions{
+  display:flex; gap:8px; align-items:center; white-space:nowrap;
+}
+.events .event-actions button{
+  all: unset;               /* nuke inherited .btn rules */
+  display:inline-block;
+  padding: 4px 10px;
   border-radius: 10px;
-  padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  color: var(--text);
+  font: 500 13px/1.1 inherit;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
 }
+.events .event-actions button:hover{
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.22);
+}
+.events .event-actions button:active{ transform: translateY(1px); }
+.events .event-actions .delete{ color: var(--danger); }
 
-/* Make the placeholder and chosen date text the same color */
+/* Date input look (kept minimal) */
+input[type="date"]{
+  background:#0f1320; color:var(--text);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:10px; padding:10px 12px;
+}
 input[type="date"]::-webkit-datetime-edit,
 input[type="date"]::-webkit-datetime-edit-fields-wrapper,
 input[type="date"]::-webkit-datetime-edit-text,
 input[type="date"]::-webkit-datetime-edit-month-field,
 input[type="date"]::-webkit-datetime-edit-day-field,
-input[type="date"]::-webkit-datetime-edit-year-field {
-  color: var(--text);
-}
+input[type="date"]::-webkit-datetime-edit-year-field{ color:var(--text); }
+input[type="date"]::-webkit-calendar-picker-indicator{ filter: invert(1); cursor:pointer; }
 
-/* Make the calendar icon white */
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-}
-
-/* === Progress bar container === */
-.progress-line {
-  position: relative;
-  background: rgba(255,255,255,0.08);
-  height: 6px;
-  border-radius: 6px;
-  overflow: hidden;
-  direction: rtl;       /* fill from right */
-  margin: 6px 0;
-}
-
-.progress-line > span {
-  display: block;
-  height: 100%;
-  width: 0%;
-  background: var(--accent);
-  border-radius: 6px;
-  transition: width .35s ease;
-  float: right;         /* anchor to right edge */
-}
-
-/* turn bar red when less than or equal to 5 days left */
-.progress-line.low-time > span { background: var(--danger); }
-
-/* layout bits used above */
-.event-item{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:14px;
-}
-
-.event-main{
-  flex:1;
-  min-width:0;
-}
-
-.event-name{
-  font-weight:700;
-  margin-bottom:6px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-
-.event-meta{
-  font-size:13px;
-  color:var(--muted);
-}
-
-.event-meta strong{
-  color:var(--text);
-  font-weight:600;
-}
-
-.event-meta .date{
-  opacity:.9;
-  margin-left:6px;
-}
-
-/* --- Mobile adjustments (smaller bar & stacked buttons) --- */
-@media (max-width: 768px) {
-  .progress-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+/* ---------- Mobile ---------- */
+@media (max-width: 768px){
+  /* stack bar over actions to avoid cramped layout */
+  .progress-row{ grid-template-columns: 1fr; gap:8px; }
+  .event-actions{ gap:6px; }
+  .events .event-actions button{
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.05;         /* prevents tall/fat pills */
+    border-radius: 9px;
   }
-  .progress-row .progress-line {
-    flex: none;       /* don’t stretch */
-    width: 50%;       /* exactly half width */
-    height: 4px;      /* slimmer for mobile */
-  }
-  .progress-row .event-actions {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-  }
+  .progress-line{ height:4px; }
 }
 
 
