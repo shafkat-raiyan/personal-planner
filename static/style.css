@@ -36,13 +36,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px; /* much smaller padding */
+  padding: 11px 17px; /* much smaller padding */
   background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
 }
 
 .title h1 {
   margin: 0;
-  font-size: clamp(20px, 4vw, 30px); /* smaller main title */
+  font-size: clamp(22px, 6vw, 32px); /* smaller main title */
   font-weight: 800;
   letter-spacing: .2px;
   color: white;
@@ -52,7 +52,7 @@ html, body {
 .title p {
   margin: .1rem 0 0 0;
   color: white;
-  font-size: clamp(11px, 1.1vw, 15px); /* smaller subtitle */
+  font-size: clamp(14px, 1.3vw, 17px); /* smaller subtitle */
   opacity: 0.8;
   text-shadow: 0 1px 3px rgba(0,0,0,0.35);
 }
