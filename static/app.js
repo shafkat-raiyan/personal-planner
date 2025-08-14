@@ -5,12 +5,13 @@ const K = {
   name: 'sd_name',
   subtitle: 'sd_subtitle',
   notes: 'sd_notes',
-  photo: 'sd_photo_b64'
+  photo: 'sd_photo_b64',
+  notesHeight: 'sd_notes_height'
 };
 const RK = 'sd_routine_v1';
 const EK = 'sd_events_v1'; // events cache
 
-const WEEK_ORDER = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const WEEK_ORDER = ["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"];
 const $ = (sel) => document.querySelector(sel);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 
@@ -160,6 +161,21 @@ function loadNotesFromCache(){
   notes.value = cacheGet(K.notes, '');
 }
 
+function loadNotesHeightFromCache(){
+  const h = cacheGet(K.notesHeight, null);
+  if (h) notes.style.height = h + 'px';
+}
+
+async function syncNotesHeightFromCloud(){
+  await waitForFirebase();
+  const h = await loadData(K.notesHeight);
+  if (h) {
+    cacheSet(K.notesHeight, h);
+    notes.style.height = h + 'px';
+  }
+}
+
+
 async function syncNotesFromCloud(){
   await waitForFirebase();
   const t = await loadData(K.notes);
@@ -212,9 +228,19 @@ if (dragBar){
     document.addEventListener('mouseup',stop);   document.addEventListener('touchend',stop);
   };
   const move = (e)=>{ const y=(e.touches?e.touches[0].clientY:e.clientY); notes.style.height = `${startH+(y-startY)}px`; };
-  const stop = ()=>{ document.removeEventListener('mousemove',move); document.removeEventListener('touchmove',move);
-    document.removeEventListener('mouseup',stop); document.removeEventListener('touchend',stop);
-  };
+  const stop = async ()=>{
+  document.removeEventListener('mousemove', move);
+  document.removeEventListener('touchmove', move);
+  document.removeEventListener('mouseup', stop);
+  document.removeEventListener('touchend', stop);
+
+  // Save height to cache and cloud
+  const currentHeight = parseInt(notes.style.height, 10);
+  cacheSet(K.notesHeight, currentHeight);
+  await waitForFirebase();
+  await saveData(K.notesHeight, currentHeight);
+};
+
   dragBar.addEventListener('mousedown',start);
   dragBar.addEventListener('touchstart',start);
 }
@@ -340,7 +366,7 @@ let editState = null;
 
 function getRoutineFromCache(){
   return cacheGet(RK) ? JSON.parse(cacheGet(RK)) :
-    { days:["Monday","Tuesday","Wednesday","Thursday","Friday"], items:{} };
+    { days:["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"], items:{} };
 }
 function setRoutineCache(data){ cacheSet(RK, JSON.stringify(data)); }
 
@@ -348,7 +374,7 @@ async function getRoutineFromCloud(){
   await waitForFirebase();
   const raw = await loadData(RK);
   return raw ? JSON.parse(raw) :
-    { days:["Monday","Tuesday","Wednesday","Thursday","Friday"], items:{} };
+    { days:["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"], items:{} };
 }
 async function saveRoutineCloud(data){
   await waitForFirebase();
@@ -413,7 +439,8 @@ async function renderDraft(data){
       const ap = h>=12?'PM':'AM'; const hh=String(h%12||12).padStart(2,'0'); const mm=String(m).padStart(2,'0');
       const row=document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.gap='8px';
       const left=document.createElement('span'); left.textContent=`${hh}:${mm} ${ap} — ${it.name}`;
-      const actions=document.createElement('span'); actions.style.display='flex'; actions.style.gap='6px';
+      const actions=document.createElement('div');
+      actions.className = 'routine-actions';
       const ebtn=document.createElement('button'); ebtn.type='button'; ebtn.textContent='Edit'; ebtn.dataset.action='edit'; ebtn.dataset.day=day; ebtn.dataset.id=it.id;
       const dbtn=document.createElement('button'); dbtn.type='button'; dbtn.textContent='Delete'; dbtn.dataset.action='delete'; dbtn.dataset.day=day; dbtn.dataset.id=it.id; dbtn.style.color='var(--danger)';
       actions.append(ebtn,dbtn); row.append(left,actions); wrap.appendChild(row);
@@ -465,6 +492,37 @@ updateClassBtn?.addEventListener('click', async ()=>{
   await renderDraft(data); renderRoutineViewFromData(data);
 });
 
+// Save selected days when clicking "Done"
+saveRoutineBtn?.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  // Days currently checked
+  const selectedDays = Array.from(
+    weekdayGrid.querySelectorAll('input[type="checkbox"]:checked')
+  ).map(c => c.value);
+
+  // Load current routine from cache
+  const data = getRoutineFromCache();
+
+  // Update day list
+  data.days = selectedDays;
+
+  // 🔧 PRUNE classes for any day that is no longer selected
+  const selectedSet = new Set(selectedDays);
+  Object.keys(data.items || {}).forEach(day => {
+    if (!selectedSet.has(day)) {
+      delete data.items[day];
+    }
+  });
+
+  // Persist cache + cloud, then re-render & close
+  setRoutineCache(data);
+  await saveRoutineCloud(data);
+  renderRoutineViewFromData(data);
+  routineDialog.close();
+});
+
+
 cancelEditBtn?.addEventListener('click', ()=>{
   editState=null; addClassBtn.style.display=''; updateClassBtn.style.display='none'; cancelEditBtn.style.display='none';
   classNameInput.value=''; classTimeInput.value='';
@@ -498,6 +556,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
       syncHeaderFromCloud(),
       syncPhotoFromCloud(),
       syncNotesFromCloud(),
+      syncNotesHeightFromCloud(),
       syncRoutineFromCloud(),
       syncEventsFromCloud()
     ]);

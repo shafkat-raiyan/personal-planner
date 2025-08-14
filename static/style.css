@@ -355,16 +355,30 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
   cursor: pointer;
 }
 
-#routineDialog button:hover { background: rgba(92,200,255,0.2); }
+/* Make edit and delete buttons slimmer */
+/* Add this for the container holding the buttons */
+.routine-draft .routine-actions {
+  display: flex;
+  gap: 10px; /* space between Edit and Delete buttons */
+  margin-top: 4px;
+}
+
+/* Remove margin-right from individual buttons */
+#routineDialog button[data-action="edit"],
+#routineDialog button[data-action="delete"] {
+  border-width: 1px;
+  padding: 3px 6px;
+  font-size: 12px;
+  margin-right: 0;
+}
 
 #routineDialog button[data-action="delete"] {
   color: var(--danger);
   border-color: var(--danger);
 }
 
-#routineDialog button[data-action="delete"]:hover {
-  background: rgba(255,107,107,0.15);
-}
+#routineDialog button:hover { background: rgba(92,200,255,0.2); }
+#routineDialog button[data-action="delete"]:hover { background: rgba(255,107,107,0.15); }
 
 /* Time Picker & Dropdown Styling */
 #classTime,
