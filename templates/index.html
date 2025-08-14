@@ -138,7 +138,7 @@
       </div>
       <menu>
         <button class="btn ghost" value="cancel">Close</button>
-        <button class="btn" id="saveSettings" value="default">Save</button>
+        <button class="btn" id="saveSettings" type="button" value="default">Save</button>
       </menu>
     </form>
   </dialog>
@@ -146,49 +146,81 @@
   <!-- =========================
        Firebase Auth + Firestore
   ========================== -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDIfixZDEZuodWMvk1qIl3pjo13kowvUVk",
-      authDomain: "student-doctor-daa8f.firebaseapp.com",
-      projectId: "student-doctor-daa8f",
-      storageBucket: "student-doctor-daa8f.appspot.com",
-      messagingSenderId: "85022967516",
-      appId: "1:85022967516:web:dbfe1a39591abea1cc1619"
-    };
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDIfixZDEZuodWMvk1qIl3pjo13kowvUVk",
+    authDomain: "student-doctor-daa8f.firebaseapp.com",
+    projectId: "student-doctor-daa8f",
+    storageBucket: "student-doctor-daa8f.appspot.com",
+    messagingSenderId: "85022967516",
+    appId: "1:85022967516:web:dbfe1a39591abea1cc1619"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const userDocRef = doc(db, "siteData", "defaultUser");
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
 
-    // Firestore save/load helpers
-    window.saveData = async (key, value) => {
-      await setDoc(userDocRef, { [key]: value }, { merge: true });
-    };
-    window.loadData = async (key) => {
-      const snap = await getDoc(userDocRef);
-      const data = snap.data() || {};
-      return data[key] || null;
-    };
+  // One place where app.js will read/write
+  const userDocRef = doc(db, "siteData", "defaultUser");
 
-    // Ensure app waits until login completes
-    window.firebaseReadyPromise = new Promise((resolve, reject) => {
-      signInWithEmailAndPassword(auth, "dr-marine@med-buddy.com", "med1234")
-        .then(() => {
-          console.log("✅ Firebase login successful");
-          resolve();
-        })
-        .catch(err => {
-          console.error("❌ Firebase login failed", err);
-          reject(err);
-        });
-    });
-  </script>
+  // Make helpers visible to app.js
+  window.__FIREBASE__ = { auth, db, userDocRef };
+
+  // Save/Load wrappers used by app.js
+  window.saveData = async (key, value) => {
+    await setDoc(userDocRef, { [key]: value }, { merge: true });
+  };
+  window.loadData = async (key) => {
+    const snap = await getDoc(userDocRef);
+    const data = snap.data() || {};
+    return data[key] ?? null;
+  };
+
+  // Promise that resolves as soon as we’re authenticated.
+  // Uses persistent login so reloads are much faster.
+  window.firebaseReadyPromise = new Promise(async (resolve, reject) => {
+    try {
+      // Persist session (LocalStorage). Subsequent loads reuse the session.
+      await setPersistence(auth, browserLocalPersistence);
+
+      // If already signed in, resolve immediately.
+      const unsub = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          unsub(); resolve();                // ready instantly
+        } else {
+          // First time (or signed-out): do the sign-in once.
+          try {
+            await signInWithEmailAndPassword(auth, "dr-marine@med-buddy.com", "med1234");
+            unsub(); resolve();
+          } catch (err) {
+            console.error("Auth error:", err);
+            unsub(); reject(err);
+          }
+        }
+      });
+    } catch (e) {
+      console.error("Persistence error:", e);
+      reject(e);
+    }
+  });
+</script>
+
 
   <!-- =========================
        Main App JS
