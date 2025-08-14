@@ -137,21 +137,24 @@
         <button class="btn ghost" id="removePhoto" type="button">Remove Photo</button>
       </div>
       <menu>
+        <button class="btn ghost" id="logoutBtn" type="button">Logout</button>
         <button class="btn ghost" value="cancel">Close</button>
-        <button class="btn" id="saveSettings" type="button" value="default">Save</button>
+        <button class="btn" id="saveSettings" value="default">Save</button>
       </menu>
+
     </form>
   </dialog>
 
   <!-- =========================
        Firebase Auth + Firestore
   ========================== -->
- <script type="module">
+
+  <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
   import {
     getAuth,
-    signInWithEmailAndPassword,
     onAuthStateChanged,
+    signInWithEmailAndPassword,
     setPersistence,
     browserLocalPersistence
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
@@ -162,64 +165,83 @@
     getDoc
   } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyDIfixZDEZuodWMvk1qIl3pjo13kowvUVk",
-    authDomain: "student-doctor-daa8f.firebaseapp.com",
-    projectId: "student-doctor-daa8f",
-    storageBucket: "student-doctor-daa8f.appspot.com",
-    messagingSenderId: "85022967516",
-    appId: "1:85022967516:web:dbfe1a39591abea1cc1619"
-  };
+  (async () => {
+    // ✅ USE YOUR REAL CONFIG (the one you shared earlier)
+    const firebaseConfig = {
+      apiKey: "AIzaSyDIfixZDEZuodWMvk1qIl3pjo13kowvUVk",
+      authDomain: "student-doctor-daa8f.firebaseapp.com",
+      projectId: "student-doctor-daa8f",
+      storageBucket: "student-doctor-daa8f.firebasestorage.app",
+      messagingSenderId: "85022967516",
+      appId: "1:85022967516:web:dbfe1a39591abea1cc1619"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+    // Init core SDKs
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-  // One place where app.js will read/write
-  const userDocRef = doc(db, "siteData", "defaultUser");
+    // Persist login so she won’t have to log in again on the same browser
+    await setPersistence(auth, browserLocalPersistence);
 
-  // Make helpers visible to app.js
-  window.__FIREBASE__ = { auth, db, userDocRef };
+    // Firestore helpers used by app.js
+    const userDocRef = doc(db, "siteData", "defaultUser");
+    window.saveData = (key, value) => setDoc(userDocRef, { [key]: value }, { merge: true });
+    window.loadData = async (key) => {
+      const snap = await getDoc(userDocRef);
+      const data = snap.data() || {};
+      return data[key] ?? null;
+    };
 
-  // Save/Load wrappers used by app.js
-  window.saveData = async (key, value) => {
-    await setDoc(userDocRef, { [key]: value }, { merge: true });
-  };
-  window.loadData = async (key) => {
-    const snap = await getDoc(userDocRef);
-    const data = snap.data() || {};
-    return data[key] ?? null;
-  };
+    // Expose auth & sign-in helper for the overlay in app.js
+    window.__auth   = auth;
+    window.__db     = db;
+    window.__signIn = async (password) => {
+      try {
+        // Fixed email + typed password
+        return await signInWithEmailAndPassword(auth, "marine@sr.com", password);
+      } catch (err) {
+        console.error("[Auth] Sign-in error:", err?.code || err?.message || err);
+        throw err;
+      }
+    };
 
-  // Promise that resolves as soon as we’re authenticated.
-  // Uses persistent login so reloads are much faster.
-  window.firebaseReadyPromise = new Promise(async (resolve, reject) => {
-    try {
-      // Persist session (LocalStorage). Subsequent loads reuse the session.
-      await setPersistence(auth, browserLocalPersistence);
-
-      // If already signed in, resolve immediately.
-      const unsub = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          unsub(); resolve();                // ready instantly
-        } else {
-          // First time (or signed-out): do the sign-in once.
-          try {
-            await signInWithEmailAndPassword(auth, "dr-marine@med-buddy.com", "med1234");
-            unsub(); resolve();
-          } catch (err) {
-            console.error("Auth error:", err);
-            unsub(); reject(err);
-          }
-        }
-      });
-    } catch (e) {
-      console.error("Persistence error:", e);
-      reject(e);
-    }
-  });
+    // Resolve when a user is logged in (either remembered or just signed in)
+    let _resolveReady;
+    window.firebaseReadyPromise = new Promise(r => (_resolveReady = r));
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("[Auth] Logged in as:", user.email);
+        _resolveReady();
+      } else {
+        console.log("[Auth] Not logged in");
+      }
+    });
+  })();
 </script>
+
+
+
+<!-- =========================
+     Login Overlay (simple password)
+========================= -->
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-card">
+    <h2>Welcome</h2>
+    <p class="muted">Enter password to continue</p>
+
+    <form id="authForm">
+      <input id="authPassword" type="password" placeholder="Password" autocomplete="current-password" required />
+      <label class="remember">
+        <input id="authRemember" type="checkbox" /> Remember me on this device
+      </label>
+      <div class="row">
+        <button class="btn" type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
 
   <!-- =========================

@@ -563,3 +563,45 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 }
 
+
+/* =========================
+   Auth overlay
+========================= */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;               /* JS toggles to flex */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;               /* higher than dialogs/cards */
+  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,.45);
+}
+
+.auth-card {
+  width: min(520px, 92vw);
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(22, 28, 36, 0.9);
+  box-shadow: 0 10px 40px rgba(0,0,0,.4);
+}
+
+.auth-card h2 { margin: 0 0 4px 0; }
+.auth-card .muted { color: var(--muted); margin: 0 0 12px 0; }
+
+.auth-card input[type="password"] {
+  width: 100%;
+  background: #0f1320;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  margin-bottom: 10px;
+}
+
+.auth-card .remember {
+  display: flex; align-items: center; gap: 8px;
+  margin: 6px 0 12px 0;
+  color: var(--muted);
+}
