@@ -8,6 +8,14 @@ const K = {
   photo: 'sd_photo_b64',
   notesHeight: 'sd_notes_height'
 };
+
+// ✅ Apply cached notes height instantly (no flicker)
+const cachedHeight = localStorage.getItem(K.notesHeight);
+if (cachedHeight) {
+  const el = document.getElementById('notes');
+  if (el) el.style.height = cachedHeight + 'px';
+}
+
 const RK = 'sd_routine_v1';
 const EK = 'sd_events_v1'; // events cache
 
