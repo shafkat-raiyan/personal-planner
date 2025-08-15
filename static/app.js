@@ -534,7 +534,7 @@ function renderRoutineViewFromData(data) {
     head.className = 'day-head';
     head.innerHTML = `
       <div class="day-title">${day}</div>
-      <div class="day-count">${items.length ? `${items.length} class${items.length>1?'es':''}` : 'No class'}</div>
+      <div class="day-count">${items.length ? `${items.length} task${items.length>1?'s':''}` : 'No task'}</div>
     `;
     block.appendChild(head);
 
