@@ -843,7 +843,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .event-name{ font-weight:800; letter-spacing:.2px; }
 .badge{
   font-size:12px; padding:2px 8px; border-radius:999px;
-  background: rgba(255,255,255,.08); color: var(--text);
+  background: rgba(255,255,255,.08); color: var(--text); white-space: nowrap;
 }
 .badge.urgent{ background: rgba(255,82,82,.18); color:#ff9a9a; }
 .badge.date{ opacity:.85; }
