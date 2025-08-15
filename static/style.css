@@ -42,7 +42,7 @@ html, body {
 
 .title h1 {
   margin: 0;
-  font-size: clamp(22px, 6vw, 32px); /* smaller main title */
+  font-size: clamp(22px, 5vw, 32px); /* smaller main title */
   font-weight: 800;
   letter-spacing: .2px;
   color: white;
@@ -294,9 +294,120 @@ html, body {
 
   /* Extra gap before Upcoming Events */
   .card.events {
-    margin-top: 28px; /* Increase gap here */
+    margin-top: 10px; /* Increase gap here */
   }
 }
+
+
+/* =========================
+   DESKTOP: Scrollable Routine & Events cards
+========================= */
+@media (min-width: 901px) {
+  /* Scrollable cards in web view */
+.card.routine,
+.card.events {
+  max-height: 75vh;         /* adjust if you want more/less */
+  overflow-y: auto;
+}
+
+/* Transparent scrollbars - WebKit browsers */
+.card.routine::-webkit-scrollbar,
+.card.events::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card.routine::-webkit-scrollbar-thumb,
+.card.events::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.card.routine::-webkit-scrollbar-track,
+.card.events::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Firefox scrollbar */
+.card.routine,
+.card.events {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+}
+
+/* =========================
+   MOBILE: Routine – 2 columns,
+   remove inner glass panel (.routine-view)
+========================= */
+@media (max-width: 900px) {
+
+
+  .routine-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+    max-height: none;
+    overflow: visible;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    /* reduced padding to tighten upper/lower gap */
+    padding: 2px 4px;
+
+    /* shift section slightly left */
+    margin-top: 2px !important;
+
+    margin-left: -4px; /* adjust value as needed */
+
+    margin-right: 0 !important;
+
+    width: 100%;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .routine-view::before,
+  .routine-view::after {
+    display: none !important;
+  }
+
+  .routine-view .day-block {
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    break-inside: avoid;
+  }
+
+  .routine-view .day-head { margin-bottom: 6px; gap: 6px; }
+  .routine-view .day-title { font-size: 14px; }
+  .routine-view .day-count {
+    font-size: 11px;
+    padding: 1px 6px;
+    line-height: 1.1;
+  }
+
+  .routine-view .timeline { padding-left: 14px; }
+  .routine-view .timeline::before { left: 6px; }
+
+  .routine-view .class-item { gap: 4px; padding: 6px 0 8px; }
+  .routine-view .subject {
+    font-size: 13px;
+    line-height: 1.3;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+}
+
+
+
+
 
 /* =====================
    Typography
@@ -422,13 +533,20 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
 }
 
 .day-count {
-  font-size: 12px;
-  padding: 2px 8px;
+  display: inline-flex;          /* keeps it centered horizontally & vertically */
+  align-items: center;           /* vertical center */
+  justify-content: center;
+  font-size: 11px;
+  height: 18px;                  /* fixed height */
+  padding: 0 6px;                 /* consistent horizontal padding */
   border-radius: 999px;
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.08);
   opacity: .9;
+  line-height: 1;                 /* prevent extra vertical space */
+  white-space: nowrap;           /* stop wrapping to 2 lines */
 }
+
 
 .timeline {
   position: relative;
@@ -603,7 +721,7 @@ menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-t
 #routineDay {
   height: 34px;                        /* matches Add button feel */
   padding: 0 10px;
-  background: rgba(129,131,245,0.75);
+  background: rgba(187, 53, 160, 0.905);
   color: var(--text);
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 8px;

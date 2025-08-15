@@ -515,7 +515,7 @@ function renderRoutineViewFromData(data) {
 
   const days = Array.isArray(data?.days) ? data.days : [];
   if (!days.length) {
-    container.textContent = 'No routine yet.';
+    container.textContent = 'No Routine Yet.';
     routineView.innerHTML = '';
     routineView.appendChild(container);
     return;
