@@ -284,7 +284,7 @@ html, body {
     grid-template-columns: 1fr; 
   }
 
-  .card.notes, .card.counter, .card.events, .card.routine {
+  .card.notes, .card.counter, .card.routine {
     position: static;
     width: 100%;
     margin: 12px auto 0;
@@ -295,6 +295,11 @@ html, body {
   /* Extra gap before Upcoming Events */
   .card.events {
     margin-top: 10px; /* Increase gap here */
+    position: static;
+    width: 90%;
+    margin: 12px auto 0;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 }
 
@@ -773,7 +778,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 /* default accent for every month group */
 .card.events .month-group {
   --month-accent: var(--accent);   /* will be overridden from JS when urgent */
-  margin-top: 18px;                /* a little extra gap below “Date” */
+  margin-top: 18px;
+                   /* a little extra gap below “Date” */
 }
 
 .card.events .month-group .month-title {
