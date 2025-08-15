@@ -227,8 +227,7 @@ removePhoto?.addEventListener('click', async ()=>{
 ========================= */
 const notes       = $('#notes');
 const clearNotes  = $('#clearNotes');
-const exportNotes = $('#exportNotes');
-const importNotes = $('#importNotes');
+
 
 function loadNotesFromCache(){
   if (!isLoggedIn()) return;
@@ -261,6 +260,7 @@ notes?.addEventListener('input', ()=>{
     await window.saveData(K.notes, v);
   }, 400);
 });
+
 clearNotes?.addEventListener('click', async ()=>{
   if (!confirm('Clear all notes?')) return;
   if (notes) notes.value = '';
@@ -268,21 +268,24 @@ clearNotes?.addEventListener('click', async ()=>{
   await waitForFirebase();
   await window.saveData(K.notes, null);
 });
-exportNotes?.addEventListener('click', ()=>{
-  const blob = new Blob([notes?.value || ''], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'notes.txt'; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+
+document.getElementById('copyNotesBtn').addEventListener('click', function () {
+  const notesText = document.getElementById('notes').value;
+  if (!notesText.trim()) {
+    alert('No notes to copy!');
+    return;
+  }
+  
+  navigator.clipboard.writeText(notesText)
+    .then(() => {
+      alert('Notes copied to clipboard!');
+    })
+    .catch(err => {
+      console.error('Failed to copy notes:', err);
+      alert('Failed to copy notes.');
+    });
 });
-importNotes?.addEventListener('change', async (e)=>{
-  const file = e.target.files?.[0]; if (!file) return;
-  const text = await file.text();
-  if (notes) notes.value = text;
-  cacheSet(K.notes, text);
-  await waitForFirebase();
-  await window.saveData(K.notes, text);
-});
+
 
 /* =========================
    Draggable bar for Notes
