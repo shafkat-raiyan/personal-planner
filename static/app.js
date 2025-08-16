@@ -109,6 +109,52 @@ document.getElementById('logoutBtn')?.addEventListener('click', () => {
   if (window.__auth) signOut(window.__auth);
 });
 
+
+/* =========================
+   Smoothly scroll a field into view
+   inside itsnearest scrollable card
+========================= */
+function scrollFieldIntoCard(el) {
+  if (!el) return;
+
+  let container = el.closest('.card');
+  const isScrollable = (node) => {
+    if (!node) return false;
+    const cs = getComputedStyle(node);
+    return /(auto|scroll|overlay)/.test(cs.overflowY) && node.scrollHeight > node.clientHeight;
+  };
+  if (!isScrollable(container)) container = null;
+
+  if (container) {
+    const cardRect = container.getBoundingClientRect();
+    const elRect   = el.getBoundingClientRect();
+    // offset so element ends up ~middle of the card
+    const offset = (cardRect.height / 2) - (elRect.height / 2);
+    const top = (container.scrollTop || 0) + (elRect.top - cardRect.top) - offset;
+    container.scrollTo({ top, behavior: 'smooth' });
+    setTimeout(() => el.focus?.({ preventScroll: true }), 180);
+  } else {
+    // Mobile → scroll window
+    const elRect = el.getBoundingClientRect();
+    const pageTop = (window.pageYOffset || document.documentElement.scrollTop || 0)
+                  + elRect.top - (window.innerHeight / 2) + (elRect.height / 2);
+    window.scrollTo({ top: pageTop, behavior: 'smooth' });
+    setTimeout(() => el.focus?.({ preventScroll: true }), 180);
+  }
+}
+
+function scrollFieldInDialog(dlg, el) {
+  if (!dlg || !el) return;
+  // aim to center the field vertically in the dialog
+  const offset = (dlg.clientHeight / 2) - (el.offsetHeight / 2);
+  const top = Math.max(0, el.offsetTop - offset);
+  dlg.scrollTo({ top, behavior: 'smooth' });
+  setTimeout(() => el.focus?.({ preventScroll: true }), 180);
+}
+
+
+
+
 /* =========================
    Header (Name & Subtitle)
 ========================= */
@@ -724,6 +770,9 @@ eventList?.addEventListener('click', async (e)=>{
       editingId = id;
       eventNameInput.value = d.name || '';
       eventDateInput.value = d.date || '';
+
+      // scroll the form into view and focus
+    scrollFieldIntoCard(eventNameInput);
     }
   }
   if (e.target.classList.contains('delete')){
@@ -966,6 +1015,9 @@ routineDraft?.addEventListener('click', async (e)=>{
     const item=(data.items[day]||[]).find(x=>x.id===id); if(!item) return;
     editState={day,id}; routineDay.value=day; classNameInput.value=item.name||''; classTimeInput.value=item.time||'';
     addClassBtn.style.display='none'; updateClassBtn.style.display=''; cancelEditBtn.style.display='';
+
+    //make the dialog scroll to the inputs on mobile
+  scrollFieldInDialog(routineDialog, classNameInput);
   }
 });
 
@@ -1032,6 +1084,8 @@ clearRoutine?.addEventListener('click', async ()=>{
 
 function renderRoutineViewFast(){ renderRoutineViewFromData( getRoutineFromCache() ); }
 async function syncRoutineFromCloud(){ const d=await getRoutineFromCloud(); setRoutineCache(d); renderRoutineViewFromData(d); }
+
+
 
 /* =========================
    Init (Auth → Cache → Cloud)
