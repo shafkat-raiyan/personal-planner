@@ -220,7 +220,7 @@ html, body {
   border-radius: 10px;
   padding: 12px;
   font-size: 15px;
-  color: var(--text);
+  color: #fff;
   resize: none;
   transition: background 0.25s ease, border-color 0.25s ease;
 }
@@ -246,6 +246,19 @@ html, body {
   height: 10px;
   background: rgba(255, 255, 255, 0.25);
 }
+
+/* Prevent page scroll while dragging */
+.drag-bar {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow selecting text inside notes */
+#notes {
+  user-select: text;
+}
+
 
 /* =====================
    Notes Buttons
@@ -280,8 +293,6 @@ input::placeholder {
   color: rgba(255, 255, 255, 0.75); /* brighter white with good contrast */
   opacity: 1 !important;            /* override browser default dimming */
 }
-
-
 
 
 /* =====================
