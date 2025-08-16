@@ -471,6 +471,7 @@ input::placeholder {
     margin: 0;
     margin-top: 2px !important;
     margin-bottom: -4px !important;
+    margin-left: -15px !important;
     padding: 2px 4px;
     box-sizing: border-box;
   }
@@ -482,7 +483,7 @@ input::placeholder {
 
   .routine-view .day-block {
     margin: 0;
-    padding: 8px 19px 8px 15px;   /* ⬅ extra 4px only on the right */
+    padding: 8px 21px 8px 21px;   /* ⬅ extra 4px only on the right */
     border-radius: 12px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.06);

@@ -12,4 +12,5 @@ def health():
     return 'ok', 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Bind to all interfaces so phones on the same Wi-Fi can reach it
+    app.run(host='0.0.0.0', port=5000, debug=False)
