@@ -466,20 +466,13 @@ input::placeholder {
     border: none !important;
     box-shadow: none !important;
 
-    /* reduced padding to tighten upper/lower gap */
-    padding: 2px 4px;
-
-    /* shift section slightly left */
+    /* keep routine-view within screen */
+    width: 100%;
+    margin: 0;
     margin-top: 2px !important;
-
-    margin-left: -15px; /* adjust value as needed */
-
-    margin-right: 0 !important;
-
-    width: 115%;
+    margin-bottom: -4px !important;
+    padding: 2px 4px;
     box-sizing: border-box;
-    padding-left: 0;
-    padding-right: 0;
   }
 
   .routine-view::before,
@@ -489,7 +482,7 @@ input::placeholder {
 
   .routine-view .day-block {
     margin: 0;
-    padding: 8px 10px;
+    padding: 8px 18px 8px 10px;   /* ⬅ extra 4px only on the right */
     border-radius: 12px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.06);
