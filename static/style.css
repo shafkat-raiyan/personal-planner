@@ -837,16 +837,38 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .event-item:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
 
 /* Head row: title + badges */
-.event-head{
-  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+.event-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+
+  flex-wrap: wrap;    /* ✅ allow wrapping instead of clipping */
 }
-.event-name{ font-weight:800; letter-spacing:.2px; }
-.badge{
-  font-size:12px; padding:2px 8px; border-radius:999px;
-  background: rgba(255,255,255,.08); color: var(--text); white-space: nowrap;
+
+.event-name {
+  font-weight: 800;
+  letter-spacing: .2px;
+
+  flex: 1 1 auto;     /* ✅ let the title shrink/wrap */
+  min-width: 0;       /* ✅ prevents overflow pushing pills out */
+  word-break: break-word;
 }
-.badge.urgent{ background: rgba(255,82,82,.18); color:#ff9a9a; }
-.badge.date{ opacity:.85; }
+
+.badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+  white-space: nowrap;
+
+  flex: 0 0 auto;     /* ✅ pills stay compact */
+}
+
+.badge.urgent { background: rgba(255,82,82,.18); color:#ff9a9a; }
+.badge.date   { opacity:.85; }
+
 
 /* Progress + actions */
 .progress-row{
