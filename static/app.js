@@ -31,6 +31,7 @@ const cacheSet     = (k, v)      => localStorage.setItem(k, v);
 const cacheGetJSON = (k, d=[])   => { try{ return JSON.parse(localStorage.getItem(k)||''); }catch{ return d; } };
 const cacheSetJSON = (k, v)      => localStorage.setItem(k, JSON.stringify(v));
 
+
 /* Apply cached notes height instantly (before DOM ready) */
 {
   const cachedHeight = localStorage.getItem(K.notesHeight);
@@ -176,9 +177,29 @@ const photoArea   = $('#photoArea');
 const photoInput  = $('#photoInput');
 const removePhoto = $('#removePhoto');
 
+const PHOTO_DIM_KEY = 'sd_photo_dim'; // persist dim preference ('1' on, '0' off)
+
 function setPhotoFromB64(b64){
   if (photoArea) photoArea.style.backgroundImage = b64 ? `url(${b64})` : 'none';
+  // re-apply dim each time we set the image
+  applyPhotoDim(cacheGet(PHOTO_DIM_KEY, '1') === '1');
 }
+
+function applyPhotoDim(dimOn) {
+  if (!photoArea) return;
+  // If dimOn => keep the haze (0.28), else full opacity
+  photoArea.style.opacity = dimOn ? '0.5' : '1';
+}
+
+async function syncPhotoDimFromCloud(){
+  await waitForFirebase();
+  const v = await window.loadData(PHOTO_DIM_KEY);
+  // default to '1' (dim on) if nothing saved yet
+  const val = (v === null ? '1' : String(v));
+  cacheSet(PHOTO_DIM_KEY, val);
+  applyPhotoDim(val === '1');
+}
+
 function loadPhotoFromCache(){
   if (!isLoggedIn()) return;
   setPhotoFromB64(cacheGet(K.photo, null));
@@ -188,7 +209,8 @@ async function syncPhotoFromCloud(){
   const b64 = await window.loadData(K.photo);
   if (b64 !== null){ cacheSet(K.photo, b64); setPhotoFromB64(b64); }
 }
-// compress before saving to keep payloads small
+
+// optional: compress helper if you ever save raw files (we use canvas export below)
 function compressImage(file, maxW=1600, maxH=1600, quality=0.85){
   return new Promise((resolve, reject)=>{
     const img = new Image();
@@ -207,20 +229,272 @@ function compressImage(file, maxW=1600, maxH=1600, quality=0.85){
     r.readAsDataURL(file);
   });
 }
-photoInput?.addEventListener('change', async (e)=>{
-  const f = e.target.files?.[0]; if (!f) return;
-  const b64 = await compressImage(f);
-  cacheSet(K.photo, b64);
-  setPhotoFromB64(b64);
-  await waitForFirebase();
-  await window.saveData(K.photo, b64);
+
+// Open cropper when choosing a file
+photoInput?.addEventListener('change', (e) => {
+  const f = e.target.files?.[0];
+  if (!f) return;
+  openCropperWithFile(f);
 });
+
 removePhoto?.addEventListener('click', async ()=>{
   cacheSet(K.photo, '');
   setPhotoFromB64(null);
   await waitForFirebase();
   await window.saveData(K.photo, null);
 });
+
+/* =========================
+   Minimal canvas cropper (no libraries)
+========================= */
+
+// Elements
+const cropDialog    = document.getElementById('cropDialog');
+const cropCanvas    = document.getElementById('cropCanvas');
+const cropApplyBtn  = document.getElementById('cropApply');
+const cropCancelBtn = document.getElementById('cropCancel');
+const cropDimToggle = document.getElementById('cropDimToggle');
+
+const ctx = cropCanvas.getContext('2d', { alpha: false });
+
+// state
+const cropState = {
+  img: null,
+  scale: 1,
+  drag: false,
+  lastX: 0,
+  lastY: 0,
+  offsetX: 0,
+  offsetY: 0,
+  aspect: null, // computed from #photoArea size
+};
+
+// reset file input so selecting the same file re-triggers change
+function resetPhotoInput() { if (photoInput) photoInput.value = ''; }
+
+// compute aspect from the live frame (mobile-first fallback 9:16)
+function setAspectToPhotoArea() {
+  const rect = photoArea?.getBoundingClientRect?.() || { width: 0, height: 0 };
+  const aspect = (rect.width > 0 && rect.height > 0)
+    ? (rect.width / rect.height)
+    : (9 / 16);
+
+  cropState.aspect = aspect;
+
+  // internal working size (not the UI size)
+  const targetW = 960;
+  cropCanvas.width  = targetW;
+  cropCanvas.height = Math.round(targetW / aspect);
+
+  drawCrop();
+}
+
+// open cropper from a chosen file
+function openCropperWithFile(file) {
+  const img = new Image();
+  img.onload = () => {
+    cropState.img     = img;
+    cropState.scale   = 1;
+    cropState.offsetX = 0;
+    cropState.offsetY = 0;
+
+    setAspectToPhotoArea();
+
+    // init Dim toggle from cache (default on)
+    const stored = cacheGet(PHOTO_DIM_KEY, '1') === '1';
+    if (cropDimToggle) cropDimToggle.checked = stored;
+
+    if (typeof cropDialog.showModal === 'function') cropDialog.showModal();
+    else cropDialog.setAttribute('open', '');
+  };
+  img.onerror = () => alert('Could not load image.');
+  const r = new FileReader();
+  r.onload = () => (img.src = r.result);
+  r.readAsDataURL(file);
+}
+
+// draw current view
+function drawCrop() {
+  if (!cropState.img) return;
+  const { img, scale, offsetX, offsetY } = cropState;
+  const cw = cropCanvas.width;
+  const ch = cropCanvas.height;
+
+  // fill bg (no gridlines)
+  ctx.fillStyle = '#0c111b';
+  ctx.fillRect(0, 0, cw, ch);
+
+  // cover-fit
+  const baseScale = Math.max(cw / img.width, ch / img.height);
+  const s = baseScale * scale;
+
+  const drawW = img.width  * s;
+  const drawH = img.height * s;
+  const x = (cw - drawW) / 2 + offsetX;
+  const y = (ch - drawH) / 2 + offsetY;
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, x, y, drawW, drawH);
+}
+
+// mouse drag
+cropCanvas.addEventListener('mousedown', (ev) => {
+  cropState.drag = true;
+  cropState.lastX = ev.clientX;
+  cropState.lastY = ev.clientY;
+});
+window.addEventListener('mouseup', () => cropState.drag = false);
+cropCanvas.addEventListener('mousemove', (ev) => {
+  if (!cropState.drag) return;
+  const dx = ev.clientX - cropState.lastX;
+  const dy = ev.clientY - cropState.lastY;
+  cropState.lastX = ev.clientX;
+  cropState.lastY = ev.clientY;
+  cropState.offsetX += dx;
+  cropState.offsetY += dy;
+  drawCrop();
+});
+
+// touch drag & pinch zoom
+let pinchStartDist = 0;
+let pinchStartScale = 1;
+function distance(p1, p2){ const dx=p1.clientX-p2.clientX, dy=p1.clientY-p2.clientY; return Math.hypot(dx,dy); }
+
+cropCanvas.addEventListener('touchstart', (ev) => {
+  if (ev.touches.length === 2) {
+    pinchStartDist = distance(ev.touches[0], ev.touches[1]);
+    pinchStartScale = cropState.scale;
+  } else if (ev.touches.length === 1) {
+    cropState.drag = true;
+    cropState.lastX = ev.touches[0].clientX;
+    cropState.lastY = ev.touches[0].clientY;
+  }
+},{passive:true});
+
+cropCanvas.addEventListener('touchmove', (ev) => {
+  if (ev.touches.length === 2) {
+    const d = distance(ev.touches[0], ev.touches[1]);
+    const factor = d / (pinchStartDist || d);
+    cropState.scale = Math.max(1, Math.min(3, pinchStartScale * factor));
+    drawCrop();
+  } else if (cropState.drag && ev.touches.length === 1) {
+    const t = ev.touches[0];
+    const dx = t.clientX - cropState.lastX;
+    const dy = t.clientY - cropState.lastY;
+    cropState.lastX = t.clientX;
+    cropState.lastY = t.clientY;
+    cropState.offsetX += dx;
+    cropState.offsetY += dy;
+    drawCrop();
+  }
+},{passive:true});
+
+cropCanvas.addEventListener('touchend', () => { cropState.drag = false; }, {passive:true});
+
+// wheel zoom (desktop)
+cropCanvas.addEventListener('wheel', (ev) => {
+  ev.preventDefault();
+  const step = (ev.ctrlKey ? 0.03 : 0.06);
+  cropState.scale = Math.min(3, Math.max(1, cropState.scale + (ev.deltaY > 0 ? -step : step)));
+  drawCrop();
+}, { passive: false });
+
+// Dim toggle live-preview
+cropDimToggle?.addEventListener('change', () => {
+  applyPhotoDim(!!cropDimToggle.checked);
+});
+
+// Cancel → close + make input re-triggerable
+cropCancelBtn?.addEventListener('click', () => {
+  if (typeof cropDialog.close === 'function') cropDialog.close();
+  else cropDialog.removeAttribute('open');
+  resetPhotoInput();
+});
+
+// Also reset input whenever dialog closes (ESC, backdrop, etc.)
+cropDialog?.addEventListener('close', resetPhotoInput);
+
+// Apply → export & save + persist dim setting
+// — helper: blob -> dataURL
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsDataURL(blob);
+  });
+}
+
+// — helper: downscale if needed
+async function downscaleIfNeededFromCanvas(canvas, type = 'image/jpeg', quality = 0.85, maxW = 1200, maxH = 1200) {
+  const cw = canvas.width, ch = canvas.height;
+
+  if (cw <= maxW && ch <= maxH) {
+    const blob = await new Promise(res => canvas.toBlob(res, type, quality));
+    return blob;
+  }
+
+  const ratio = Math.min(maxW / cw, maxH / ch);
+  const w = Math.round(cw * ratio);
+  const h = Math.round(ch * ratio);
+
+  const tmp = document.createElement('canvas');
+  tmp.width = w; tmp.height = h;
+  const tctx = tmp.getContext('2d', { alpha: false });
+  tctx.imageSmoothingEnabled = true;
+  tctx.imageSmoothingQuality = 'high';
+  tctx.drawImage(canvas, 0, 0, w, h);
+
+  const blob = await new Promise(res => tmp.toBlob(res, type, quality));
+  return blob;
+}
+
+// ————— FAST APPLY: instant UI, async save —————
+cropApplyBtn?.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  try {
+    // 1) Instantly update UI
+    const previewDataURL = cropCanvas.toDataURL('image/jpeg', 0.9);
+    cacheSet(K.photo, previewDataURL);
+    setPhotoFromB64(previewDataURL);
+
+    const dimOn = !!cropDimToggle?.checked;
+    cacheSet(PHOTO_DIM_KEY, dimOn ? '1' : '0');
+    applyPhotoDim(dimOn);
+
+    if (typeof cropDialog.close === 'function') cropDialog.close();
+    else cropDialog.removeAttribute('open');
+    if (photoInput) photoInput.value = '';
+
+    // 2) Background save to Firebase
+    queueMicrotask(async () => {
+      try {
+        const blob = await downscaleIfNeededFromCanvas(cropCanvas, 'image/jpeg', 0.85, 1200, 1200);
+        const finalDataURL = await blobToDataURL(blob);
+
+        await waitForFirebase();
+        await window.saveData(K.photo, finalDataURL);
+        await window.saveData(PHOTO_DIM_KEY, dimOn ? '1' : '0');
+      } catch (saveErr) {
+        console.error('Background save failed:', saveErr);
+      }
+    });
+
+  } catch (err) {
+    console.error('Crop/Save failed', err);
+    alert('Failed to save cropped photo.');
+  }
+});
+
+
+// Keep canvas aspect in sync if dialog is open and viewport changes
+window.addEventListener('resize', () => {
+  if (cropDialog?.open && cropState.img) setAspectToPhotoArea();
+});
+
+
 
 /* =========================
    Notes (autosave + cache)
@@ -781,6 +1055,7 @@ function initApp() {
   Promise.all([
     syncHeaderFromCloud(),
     syncPhotoFromCloud(),
+    syncPhotoDimFromCloud(),
     syncNotesFromCloud(),
     syncNotesHeightFromCloud(),
     syncRoutineFromCloud(),

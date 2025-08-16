@@ -144,6 +144,33 @@
     </form>
   </dialog>
 
+
+  <!-- Image Cropper Dialog (simple: drag, wheel/pinch, Dim toggle) -->
+<dialog id="cropDialog">
+  <form method="dialog" class="crop-form">
+    <h3>Crop Photo</h3>
+
+    <div class="crop-toolbar">
+      <label class="dim">
+        <input id="cropDimToggle" type="checkbox" />
+        Apply Dim Effect
+      </label>
+    </div>
+
+    <div class="crop-stage">
+      <canvas id="cropCanvas" width="960" height="540" aria-label="Crop preview"></canvas>
+    </div>
+
+    <menu>
+      <button class="btn ghost" value="cancel" id="cropCancel">Cancel</button>
+      <button class="btn" id="cropApply" value="default">Use Photo</button>
+    </menu>
+  </form>
+</dialog>
+
+
+
+
   <!-- =========================
        Firebase Auth + Firestore
   ========================== -->
