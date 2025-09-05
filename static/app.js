@@ -835,17 +835,93 @@ function formatTime12h(t = '00:00') {
   return `${hh}:${mm} ${ap}`;
 }
 
-function renderRoutineViewFromData(data) {
-  const container = document.createElement('div');
-  container.className = 'routine-view';
+// helper: mobile check (match the same breakpoint used in CSS)
+function isMobile() {
+  return window.matchMedia('(max-width: 900px)').matches;
+}
 
+// Modern, swipeable/mobile-first renderer (today card, scroll-snap carousel)
+function renderRoutineViewFromData(data) {
   const days = Array.isArray(data?.days) ? data.days : [];
+  routineView.innerHTML = '';
+
   if (!days.length) {
-    container.textContent = 'No Routine Yet.';
-    routineView.innerHTML = '';
-    routineView.appendChild(container);
+    const empty = document.createElement('div');
+    empty.className = 'routine-view';
+    empty.textContent = 'No Routine Yet.';
+    routineView.appendChild(empty);
     return;
   }
+
+  // compute local weekday name once
+  const todayName = new Date().toLocaleDateString(undefined, { weekday: 'long' });
+
+  // Mobile → swipeable carousel, show "today" first
+  if (isMobile()) {
+    const wrap = document.createElement('div');
+    wrap.className = 'routine-carousel';
+
+    const slides = [];
+
+    days.forEach(day => {
+      const items = (data.items?.[day] || [])
+        .slice()
+        .sort((a, b) => (a.time || '') < (b.time || '') ? -1 : 1);
+
+      const slide = document.createElement('section');
+      slide.className = 'day-slide';
+      if (day.toLowerCase() === todayName.toLowerCase()) slide.classList.add('today');
+
+      // header
+      const head = document.createElement('div');
+      head.className = 'day-head';
+      head.innerHTML = `
+        <div class="day-title">${day}</div>
+        <div class="day-count">${items.length ? `${items.length} task${items.length > 1 ? 's' : ''}` : 'No task'}</div>
+      `;
+      slide.appendChild(head);
+
+      // timeline
+      const tl = document.createElement('div');
+      tl.className = 'timeline';
+
+      if (!items.length) {
+        const none = document.createElement('div');
+        none.className = 'class-empty';
+        none.textContent = '—';
+        tl.appendChild(none);
+      } else {
+        items.forEach(it => {
+          const row = document.createElement('div');
+          row.className = 'class-item';
+          row.innerHTML = `
+            <span class="dot" aria-hidden="true"></span>
+            <span class="time-pill">${formatTime12h(it.time)}</span>
+            <span class="subject">${it.name || ''}</span>
+          `;
+          tl.appendChild(row);
+        });
+      }
+
+      slide.appendChild(tl);
+      wrap.appendChild(slide);
+      slides.push(slide);
+    });
+
+    routineView.appendChild(wrap);
+
+    // center on today's slide once layout exists
+    const idx = Math.max(0, days.findIndex(d => d.toLowerCase() === todayName.toLowerCase()));
+    queueMicrotask(() => {
+      slides[idx]?.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
+    });
+
+    return; // mobile done
+  }
+
+  // Desktop/tablet → multi-day layout (modern card)
+  const container = document.createElement('div');
+  container.className = 'routine-view';
 
   days.forEach(day => {
     const items = (data.items?.[day] || [])
@@ -854,8 +930,8 @@ function renderRoutineViewFromData(data) {
 
     const block = document.createElement('div');
     block.className = 'day-block';
+    if (day.toLowerCase() === todayName.toLowerCase()) block.classList.add('today');
 
-    // Day header
     const head = document.createElement('div');
     head.className = 'day-head';
     head.innerHTML = `
@@ -864,7 +940,6 @@ function renderRoutineViewFromData(data) {
     `;
     block.appendChild(head);
 
-    // Timeline area
     const tl = document.createElement('div');
     tl.className = 'timeline';
 
@@ -890,7 +965,6 @@ function renderRoutineViewFromData(data) {
     container.appendChild(block);
   });
 
-  routineView.innerHTML = '';
   routineView.appendChild(container);
 }
 

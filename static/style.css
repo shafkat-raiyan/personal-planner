@@ -1,6 +1,6 @@
-/* =====================
+/* =========================================================
    Root Variables
-===================== */
+========================================================= */
 :root {
   --bg: #151f32;
   --panel: #171b23;
@@ -13,11 +13,10 @@
   --shadow: 0 10px 30px rgba(0,0,0,.35);
 }
 
-/* =====================
+/* =========================================================
    Global Resets & Body
-===================== */
+========================================================= */
 * { box-sizing: border-box }
-
 html, body {
   height: 100%;
   margin: 0;
@@ -26,9 +25,9 @@ html, body {
   font-family: Inter, "Noto Sans Bengali", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* =====================
+/* =========================================================
    Site Header
-===================== */
+========================================================= */
 .site-header {
   position: sticky;
   top: 0;
@@ -36,29 +35,24 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 17px; /* much smaller padding */
+  padding: 11px 17px; /* compact */
   background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));
 }
-
 .title h1 {
   margin: 0;
-  font-size: clamp(22px, 5vw, 32px); /* smaller main title */
+  font-size: clamp(22px, 5vw, 32px);
   font-weight: 800;
   letter-spacing: .2px;
   color: white;
   text-shadow: 0 2px 4px rgba(0,0,0,0.45);
 }
-
 .title p {
   margin: .1rem 0 0 0;
   color: white;
-  font-size: clamp(14px, 1.3vw, 17px); /* smaller subtitle */
+  font-size: clamp(14px, 1.3vw, 17px);
   opacity: 0.8;
   text-shadow: 0 1px 3px rgba(0,0,0,0.35);
 }
-
-
-
 .icon-btn {
   border: none;
   background: var(--panel);
@@ -69,9 +63,9 @@ html, body {
   cursor: pointer;
 }
 
-/* =====================
+/* =========================================================
    Frame & Photo Area
-===================== */
+========================================================= */
 .frame {
   position: relative;
   width: min(820px, 92vw);
@@ -82,7 +76,6 @@ html, body {
   overflow: hidden;
   min-height: 88vh;
 }
-
 .photo-area {
   position: absolute;
   inset: 0;
@@ -92,18 +85,19 @@ html, body {
   opacity: .28;
   filter: saturate(.95) contrast(1.00);
 }
-
 .overlay {
   position: relative;
   padding: clamp(16px, 2vw, 28px);
+  padding-inline: clamp(16px, 3vw, 28px);        /* ensures equal left/right gap */
   display: grid;
   grid-template-columns: 1fr;
   gap: 18px;
   max-width: 100%;
 }
 
-
-/* Crop dialog */
+/* =========================================================
+   Crop Dialog (Photo)
+========================================================= */
 #cropDialog{
   width: min(720px, 96vw);
   border: none;
@@ -113,106 +107,51 @@ html, body {
   padding: 0;
 }
 #cropDialog .crop-form{ padding: 16px; }
-
-#cropDialog h3{
-  margin: 0 0 10px 0;
-  font-size: 18px;
-}
-
+#cropDialog h3{ margin: 0 0 10px 0; font-size: 18px; }
 #cropDialog .crop-toolbar{
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px;
 }
 #cropDialog .crop-toolbar label{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--muted);
+  display: flex; align-items: center; gap: 8px; color: var(--muted);
 }
-
 #cropDialog .crop-toolbar select{
-  background: #0f1320;
-  color: var(--text);
+  background: #0f1320; color: var(--text);
   border: 1px solid rgba(255,255,255,.12);
-  border-radius: 8px;
-  padding: 6px 8px;
-  outline: none;
+  border-radius: 8px; padding: 6px 8px; outline: none;
 }
-
-/* Stage that holds the canvas */
+/* Stage holding the canvas */
 #cropDialog .crop-stage{
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #0c111b;
-  border: 1px solid rgba(255,255,255,.08);
+  position: relative; border-radius: 12px; overflow: hidden;
+  background: #0c111b; border: 1px solid rgba(255,255,255,.08);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-
-  /* NEW: block browser panning/zooming while interacting */
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
+  touch-action: none; -webkit-user-select: none; user-select: none;
 }
-
 /* Canvas */
 #cropDialog canvas{
-  display: block;
-  width: 100%;
-  height: auto;
-  cursor: grab;
-  /* keep too, but stage now also stops gestures */
-  touch-action: none;
+  display: block; width: 100%; height: auto; cursor: grab; touch-action: none;
 }
 #cropDialog canvas:active{ cursor: grabbing; }
-
 /* Footer buttons */
 #cropDialog menu{
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 0;
-  margin-top: 12px;
+  display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-top: 12px;
 }
-
 /* Dim toggle */
-#cropDialog .crop-toolbar label.dim{
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-  color: var(--muted);
-}
-#cropDialog .crop-toolbar input[type="checkbox"]{
-  width: 16px;
-  height: 16px;
-}
+#cropDialog .crop-toolbar label.dim{ display: inline-flex; gap: 8px; align-items: center; color: var(--muted); }
+#cropDialog .crop-toolbar input[type="checkbox"]{ width: 16px; height: 16px; }
 
-
-
-
-/* =====================
-   Notes Container (WOW factor, simplified)
-===================== */
+/* =========================================================
+   Notes (Container, Textarea, Drag Bar, Buttons)
+========================================================= */
 .notes-container {
   position: relative;
-  background: rgba(255, 255, 255, 0.05); /* subtle glass look */
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
   border-radius: 14px;
   padding: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
-
-.notes-container:hover {
-  box-shadow: 0 6px 26px rgba(0,0,0,0.2);
-  transform: translateY(-1px);
-}
-
-/* =====================
-   Notes Textarea
-===================== */
+.notes-container:hover { box-shadow: 0 6px 26px rgba(0,0,0,0.2); transform: translateY(-1px); }
 #notes {
   width: 100%;
   background: rgba(255, 255, 255, 0.07);
@@ -223,710 +162,232 @@ html, body {
   color: #fff;
   resize: none;
   transition: background 0.25s ease, border-color 0.25s ease;
-}
-
-#notes:focus {
-  border-color: rgba(255,255,255,0.3); /* no glow, just subtle */
-  outline: none;
-}
-
-/* =====================
-   Drag Bar (smooth + modern)
-===================== */
-.drag-bar {
-  width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 0 0 6px 6px;
-  cursor: ns-resize;
-  transition: background 0.2s ease, height 0.2s ease;
-}
-
-.drag-bar:hover {
-  height: 10px;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Prevent page scroll while dragging */
-.drag-bar {
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* Allow selecting text inside notes */
-#notes {
   user-select: text;
 }
-
-
-/* =====================
-   Notes Buttons
-===================== */
+#notes:focus { border-color: rgba(255,255,255,0.3); outline: none; }
+.drag-bar {
+  width: 100%; height: 8px; background: rgba(255, 255, 255, 0.15);
+  border-radius: 0 0 6px 6px; cursor: ns-resize;
+  transition: background 0.2s ease, height 0.2s ease;
+  touch-action: none; -webkit-user-select: none; user-select: none;
+}
+.drag-bar:hover { height: 10px; background: rgba(255, 255, 255, 0.25); }
 .row.right .btn {
-  border-radius: 8px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: var(--text);
+  border-radius: 8px; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15); color: var(--text);
   transition: background 0.3s ease, transform 0.2s ease;
 }
+.row.right .btn:hover { background: var(--accent); transform: translateY(-2px); color: white; }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn.danger:hover { background: var(--danger); color: white; }
+textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.75); opacity: 1 !important; }
 
-.row.right .btn:hover {
-  background: var(--accent);
-  transform: translateY(-2px);
-  color: white;
-}
-
-.btn.danger {
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-.btn.danger:hover {
-  background: var(--danger);
-  color: white;
-}
-
-/* Make textarea placeholder more visible */
-textarea::placeholder,
-input::placeholder {
-  color: rgba(255, 255, 255, 0.75); /* brighter white with good contrast */
-  opacity: 1 !important;            /* override browser default dimming */
-}
-
-
-/* =====================
-   Cards Layout
-===================== */
+/* =========================================================
+   Card Layout (Desktop positions)
+========================================================= */
 .card.notes { grid-column: 1 / -1; }
-
-
-.card.counter {
-  position: fixed;
-  top: 120px;
-  right: 40px;
-  width: 280px;
-  z-index: 1000;
-}
-
-.card.events {
-  position: fixed;
-  top: 120px;       /* same as counter */
-  right: 40px;      /* same as counter */
-  width: 280px;
-  z-index: 1000;
-}
-
-.card.routine {
-  position: fixed;
-  top: 120px;
-  left: 40px;
-  width: 280px;
-  z-index: 1000;
-}
+.card.counter { position: fixed; top: 120px; right: 40px; width: 280px; z-index: 1000; }
+.card.events  { position: fixed; top: 120px; right: 40px; width: 280px; z-index: 1000; }
+.card.routine { position: fixed; top: 120px; left:  40px; width: 280px; z-index: 1000; }
 
 .card.events input[type="text"],
-.card.events input[type="date"] {
-  background: #0f1320;
-  color: var(--text);
+.card.events input[type="date"]{
+  background: #0f1320; color: var(--text);
   border: 1px solid rgba(255,255,255,.12);
-  border-radius: 10px;
-  padding: 10px 12px;
-  outline: none;
+  border-radius: 10px; padding: 10px 12px; outline: none;
 }
 
-
-/* Align the picker with the button; put the label under it */
-.picker-wrapper{
-  position: relative;
-  display: flex;
-  align-items: center;   /* vertical center the input in the row */
-  height: 40px;          /* match your button/input height visually */
-}
-
-/* date/time inputs inside wrapper */
-.picker-wrapper input[type="date"],
-.picker-wrapper input[type="time"]{
-  height: 40px;          /* same visual height as button */
-  line-height: 40px;     /* keep text centered inside */
-  margin: 0;             /* remove extra vertical offset */
-  box-sizing: border-box;
-}
-
-#eventDate {
-  margin-top: -3px;   /* tweak -2px … -5px if needed */
-}
-
-/* the static "Date"/"Time" text appears just below the picker,
-   but doesn't affect row height/alignment */
+/* Picker alignment helpers */
+.picker-wrapper{ position: relative; display: flex; align-items: center; height: 40px; }
+.picker-wrapper input[type="date"], .picker-wrapper input[type="time"]{ height: 40px; line-height: 40px; margin: 0; box-sizing: border-box; }
+#eventDate { margin-top: -3px; }
 .picker-wrapper .picker-label{
-  position: absolute;
-  top: 100%;             /* directly below the wrapper */
-  left: 50%;
-  transform: translateX(-50%);
-  margin-top: 4px;
-  font-size: 11px;
-  color: #fff;
-  text-align: center;
-  white-space: nowrap;
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  margin-top: 4px; font-size: 11px; color: #fff; text-align: center; white-space: nowrap;
 }
+.picker-wrapper + *{ margin-top: 6px; }
+#routineDialog .picker-wrapper { margin-bottom: 12px; }
 
-/* give a little space below the whole picker+label block */
-.picker-wrapper + *{
-  /* optional: ensures next element doesn't crowd the label */
-  margin-top: 6px;
-}
-
-/* Add extra space below Time picker in routine dialog */
-#routineDialog .picker-wrapper {
-  margin-bottom: 12px; /* adjust as needed so label clears border */
-}
-
-
-/* =====================
-   Mobile Layout
-===================== */
-@media (max-width: 900px) {
-  .overlay { 
-    grid-template-columns: 1fr; 
-  }
-
-  .card.notes, .card.counter, .card.routine {
-    position: static;
-    width: 100%;
-    margin: 12px auto 0;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-
-  /* Extra gap before Upcoming Events */
-  .card.events {
-    margin-top: 10px; /* Increase gap here */
-    position: static;
-    width: 95%;
-    margin: 12px auto 0;
-    margin-left: 10px;
-    margin-right: 10px;
-  }
-}
-
-
-/* =========================
-   DESKTOP: Scrollable Routine & Events cards
-========================= */
-@media (min-width: 901px) {
-  /* Scrollable cards in web view */
-.card.routine,
-.card.events {
-  max-height: 75vh;         /* adjust if you want more/less */
-  overflow-y: auto;
-}
-
-/* Transparent scrollbars - WebKit browsers */
-.card.routine::-webkit-scrollbar,
-.card.events::-webkit-scrollbar {
-  width: 6px;
-}
-
-.card.routine::-webkit-scrollbar-thumb,
-.card.events::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-}
-
-.card.routine::-webkit-scrollbar-track,
-.card.events::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* Firefox scrollbar */
-.card.routine,
-.card.events {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-}
-
-}
-
-/* =========================
-   MOBILE: Routine – 2 columns,
-   remove inner glass panel (.routine-view)
-========================= */
-@media (max-width: 900px) {
-
-
-  .routine-view {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px 14px;
-    max-height: none;
-    overflow: visible;
-
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-
-    /* keep routine-view within screen */
-    width: 100%;
-    margin: 0;
-    margin-top: 2px !important;
-    margin-bottom: -4px !important;
-    margin-left: -15px !important;
-    padding: 2px 4px;
-    box-sizing: border-box;
-  }
-
-  .routine-view::before,
-  .routine-view::after {
-    display: none !important;
-  }
-
-  .routine-view .day-block {
-    margin: 0;
-    padding: 8px 12px 8px 12px;   /* ⬅ extra 4px only on the right */
-    border-radius: 12px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
-    break-inside: avoid;
-  }
-
-  .routine-view .day-head { margin-bottom: 6px; gap: 6px; }
-  .routine-view .day-title { font-size: 14px; }
-  .routine-view .day-count {
-    font-size: 11px;
-    padding: 1px 6px;
-    line-height: 1.1;
-  }
-
-  .routine-view .timeline { padding-left: 14px; }
-  .routine-view .timeline::before { left: 6px; }
-
-  .routine-view .class-item { gap: 4px; padding: 6px 0 8px; }
-  .routine-view .subject {
-    font-size: 13px;
-    line-height: 1.3;
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-  }
-}
-
-
-
-
-
-/* =====================
-   Typography
-===================== */
+/* =========================================================
+   Typography / Inputs / Buttons / Dialogs
+========================================================= */
 h2 { margin: 0 0 10px 0; font-size: 20px; color: #fff !important; }
-
-/* =====================
-   Form Inputs
-===================== */
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .row.right { justify-content: flex-end; }
-
-input[type="date"],
-input[type="text"],
+input[type="date"], input[type="text"], textarea {
+  background: #0f1320; color: var(--text);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; outline: none;
+}
 textarea {
-  background: #0f1320;
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 10px;
-  padding: 10px 12px;
-  outline: none;
+  width: 100%; resize: vertical; background: rgba(31,36,48,.75);
+  color: #ffffff; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 12px; outline: none;
 }
-
-textarea {
-  width: 100%;
-  resize: vertical;
-  background: rgba(31,36,48,.75);
-  color: #ffffff;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 14px;
-  padding: 12px;
-  outline: none;
-}
-
-/* =====================
-   Buttons
-===================== */
-.btn {
-  border: 1px solid rgba(255,255,255,.12);
-  background: var(--accent);
-  color: #001018;
-  font-weight: 700;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.btn.ghost {
-  background: transparent;
-  color: var(--text);
-}
-
+.btn { border: 1px solid rgba(255,255,255,.12); background: var(--accent); color: #001018; font-weight: 700; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--text); }
 .btn.danger { background: var(--danger); color: #250000; }
 .btn.danger.ghost { background: transparent; color: var(--danger); }
-
-.btn.file {
-  background: transparent;
-  color: var(--text);
-  font-weight: 600;
-  font-size: 14px;
-  line-height: normal;
-  border: 1px solid rgba(255,255,255,.12);
-  padding: 8px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: inline-block;
-  vertical-align: middle;
-}
-
+.btn.file { background: transparent; color: var(--text); font-weight: 600; font-size: 14px; line-height: normal; border: 1px solid rgba(255,255,255,.12); padding: 8px 12px; border-radius: 10px; cursor: pointer; display: inline-block; vertical-align: middle; }
 .btn.file input { display: none; }
-
-/* =====================
-   Countdown
-===================== */
 .countdown { margin-top: 8px; font-size: 18px; color: var(--text); }
-
-/* =====================
-   Dialog Styles
-===================== */
 dialog::backdrop { background: rgba(0,0,0,.55); }
-dialog {
-  border: none;
-  padding: 0;
-  border-radius: 16px;
-  background: var(--card);
-  color: var(--text);
-  width: min(560px, 92vw);
-}
-
+dialog { border: none; padding: 0; border-radius: 16px; background: var(--card); color: var(--text); width: min(560px, 92vw); }
 .settings-form { padding: 18px; }
 .settings-form label { display: block; margin: 10px 0; }
 .settings-form input[type="text"] { width: 100%; }
-
 .upload { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
 menu { display: flex; justify-content: flex-end; gap: 10px; padding: 0; margin-top: 14px; }
 
-/* =====================
-   Routine View
-===================== */
-
-/* Unified routine card */
+/* =========================================================
+   Routine View (Desktop/Tablet) – modern card
+========================================================= */
 .routine-view {
-  border-radius: 14px;
-  margin-top: 14px; /* a little more breathing room */
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
-  padding: 14px 16px;
+  --glass: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  position: relative;
+  border-radius: 16px;
+  padding: 16px 18px;                   /* added a touch of right padding */
+  background: var(--glass);
+  border: 1px solid rgba(255,255,255,.10);
+  box-shadow: 0 8px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter: blur(10px);
+  margin-top: 14px;
+  scrollbar-gutter: stable both-edges;  /* keep right side from looking cropped */
 }
-
-.day-block { margin-bottom: 14px; }
-
-.day-head {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 8px;
+.routine-view::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: 16px; padding: 1px; pointer-events: none;
+  background: linear-gradient(135deg, rgba(92,200,255,.35), rgba(255,255,255,.06));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
 }
-
-.day-title {
-  font-weight: 800;
-  letter-spacing: .2px;
+.day-block {
+  border-radius: 12px; padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 12px;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
-
+.day-block:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.25); background: rgba(255,255,255,0.04); }
+.day-block.today {
+  border-color: color-mix(in oklab, var(--accent) 40%, rgba(255,255,255,.06));
+  background: linear-gradient(180deg, rgba(92,200,255,.08), rgba(255,255,255,.03));
+}
+.day-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+.day-title { font-weight: 800; letter-spacing: .2px; }
 .day-count {
-  display: inline-flex;          /* keeps it centered horizontally & vertically */
-  align-items: center;           /* vertical center */
-  justify-content: center;
-  font-size: 11px;
-  height: 18px;                  /* fixed height */
-  padding: 0 6px;                 /* consistent horizontal padding */
-  border-radius: 999px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.08);
-  opacity: .9;
-  line-height: 1;                 /* prevent extra vertical space */
-  white-space: nowrap;           /* stop wrapping to 2 lines */
+  font-size: 11px; padding: 2px 8px; height: 20px; line-height: 16px;
+  border-radius: 999px; background: rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.12); white-space: nowrap;
 }
-
-
-.timeline {
-  position: relative;
-  padding-left: 18px; /* room for the vertical line + dot */
-}
-
+.timeline { position: relative; padding-left: 18px; }
 .timeline::before {
-  content: "";
-  position: absolute;
-  left: 8px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
+  content:""; position:absolute; left:8px; top:0; bottom:0; width:2px; border-radius:2px;
   background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
-  border-radius: 2px;
 }
-
-/* Each class entry now stacks vertically: time on first line, subject below */
 .class-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;        /* << stacks time and subject */
-  align-items: flex-start;
-  gap: 6px;
-  padding: 8px 0 12px;
+  position:relative; display:grid; grid-template-columns:auto 1fr;
+  align-items:start; gap:8px 10px; padding:8px 0 12px;
 }
-
-/* Glowing dot on the timeline */
 .class-item .dot {
-  position: absolute;
-  left: -10px;
-  top: 12px;                     /* sits near the first line (time) */
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--accent, #67d1ff);
-  box-shadow: 0 0 0 3px rgba(103,209,255,.18), 0 0 12px rgba(103,209,255,.55);
+  position:absolute; left:-10px; top:12px; width:10px; height:10px; border-radius:50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(92,200,255,.18), 0 0 14px rgba(92,200,255,.55);
+}
+.time-pill { font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.08); white-space: nowrap; }
+.subject   { font-weight:700; line-height:1.35; word-break: break-word; }
+.class-empty { opacity:.75; font-style:italic; padding:2px 0 6px; }
+
+/* Desktop: reduce subject size a bit (looked too big) */
+@media (min-width: 901px){
+  .routine-view .subject { font-size: 15px; } /* down from inherited size */
+  .routine-view .day-title { font-size: 18px; }
 }
 
-.time-pill {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  white-space: nowrap;           /* time stays compact */
+/* =========================================================
+   Routine Draft (Dialog)
+========================================================= */
+.routine-draft, #routineDraft {
+  margin-top: 10px; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: 10px; background: rgba(31,36,48,.5); font-size: 13px;
 }
-
-/* Subject wraps naturally to new lines; no ellipsis */
-.subject {
-  font-weight: 600;
-  white-space: normal;           /* << allow wrapping */
-  word-break: break-word;        /* break long words if needed */
-  overflow: visible;
-  color: var(--text);
-}
-
-.class-empty {
-  opacity: .75;
-  font-style: italic;
-  padding: 2px 0 6px 0;
-}
-
-
-
-/* Dialog helpers */
-.weekday-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
-  gap: 8px 12px;
-  margin: 8px 0 12px;
-}
-
-/* ===================== 
-   Routine Draft (dialog)
-===================== */
-
-/* Container */
-.routine-draft,
-#routineDraft {
-  margin-top: 10px;
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px;
-  padding: 10px;
-  background: rgba(31,36,48,.5);
-  font-size: 13px;
-}
-
-/* Only style footer buttons (Close / Done) as large buttons */
 #routineDialog menu > button {
-  background: rgba(31,36,48,.75);
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
+  background: rgba(31,36,48,.75); color: var(--text);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 8px; padding: 6px 12px; cursor: pointer;
 }
-#routineDialog menu > button:hover {
-  background: rgba(92,200,255,0.12);
-}
+#routineDialog menu > button:hover { background: rgba(92,200,255,0.12); }
 
-/* ===== Keep Edit/Delete visible even with long text ===== */
 #routineDraft { margin-top: 8px; }
-
 #routineDraft .draft-row {
-  display: grid;
-  grid-template-columns: 1fr auto;   /* left grows, right stays tight */
-  align-items: start;
-  gap: 12px;
-  padding: 8px 0;
+  display: grid; grid-template-columns: 1fr auto; align-items: start;
+  gap: 12px; padding: 8px 0;
 }
-
-#routineDraft .draft-main {
-  display: flex;
-  flex-direction: column;             /* time on first line, subject below */
-  gap: 4px;
-  min-width: 0;                       /* allow wrapping instead of overflow */
-}
-
+#routineDraft .draft-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 #routineDraft .time-pill {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  white-space: nowrap;
-  align-self: flex-start;
+  font-size: 12px; padding: 2px 8px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
+  white-space: nowrap; align-self: flex-start;
 }
+#routineDraft .subject { white-space: normal; word-break: break-word; line-height: 1.35; font-weight: 600; }
 
-#routineDraft .subject {
-  white-space: normal;                /* wrap long names */
-  word-break: break-word;             /* break very long words */
-  line-height: 1.35;
-  font-weight: 600;
-}
+/* Make day headings in the draft list stand out & sky-blue */
+#routineDraft .day-head { margin-top: 10px; font-weight: 700; color: var(--accent); }
 
-/* Actions column = slim chips */
-#routineDraft .routine-actions {
-  display: flex;
-  gap: 8px;
-}
+#routineDraft .routine-actions { display: flex; gap: 8px; }
 #routineDraft .routine-actions button {
-  background: transparent;
-  color: var(--text);
+  background: transparent; color: var(--text);
   border: 1px solid rgba(255,255,255,.18);
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 10px;
-  cursor: pointer;
+  padding: 4px 8px; font-size: 12px; border-radius: 10px; cursor: pointer;
 }
-#routineDraft .routine-actions button:hover {
-  background: rgba(92,200,255,0.10);
-}
-#routineDraft .routine-actions button[data-action="delete"] {
-  color: var(--danger);
-  border-color: rgba(255,107,107,.55);
-}
-#routineDraft .routine-actions button[data-action="delete"]:hover {
-  background: rgba(255,107,107,0.12);
-}
+#routineDraft .routine-actions button:hover { background: rgba(92,200,255,0.10); }
+#routineDraft .routine-actions button[data-action="delete"] { color: var(--danger); border-color: rgba(255,107,107,.55); }
+#routineDraft .routine-actions button[data-action="delete"]:hover { background: rgba(255,107,107,0.12); }
 
-/* (Optional) visually separate days in the draft list */
-#routineDraft .day-head {
-  margin-top: 10px;
-  font-weight: 700;
+/* Time Picker & Day Select */
+#classTime, #routineDay {
+  height: 34px; padding: 0 10px; background: rgba(210, 96, 96, 0.995);
+  color: var(--text); border: 1px solid rgba(11, 11, 11, 0.966);
+  border-radius: 8px; outline: none; box-sizing: border-box;
 }
-
-/* =====================
-   Time Picker & Day Select
-===================== */
-#classTime,
-#routineDay {
-  height: 34px;                        /* matches Add button feel */
-  padding: 0 10px;
-  background: rgba(187, 53, 160, 0.905);
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 8px;
-  outline: none;
-  box-sizing: border-box;
-}
-#classTime:focus,
-#routineDay:focus { border-color: var(--accent); }
-
-/* Nice custom arrow for the select */
+#classTime:focus, #routineDay:focus { border-color: var(--accent); }
 #routineDay {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 12px 8px;
-  padding-right: 28px;
+  background-repeat: no-repeat; background-position: right 8px center; background-size: 12px 8px; padding-right: 28px;
 }
-
-/* Full time picker style (WebKit-friendly) */
 input[type="time"] {
-  background-color: #0f1320;
-  color: var(--text);
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 10px;
-  padding: 8px 10px;                   /* balanced with 34px height */
-  height: 34px;
+  background-color: #0f1320; color: var(--text);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+  padding: 8px 10px; height: 34px;
 }
 input[type="time"]::-webkit-datetime-edit,
 input[type="time"]::-webkit-datetime-edit-fields-wrapper,
 input[type="time"]::-webkit-datetime-edit-text,
 input[type="time"]::-webkit-datetime-edit-hour-field,
 input[type="time"]::-webkit-datetime-edit-minute-field,
-input[type="time"]::-webkit-datetime-edit-ampm-field {
-  color: var(--text);
-}
-input[type="time"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
-  cursor: pointer;
-}
+input[type="time"]::-webkit-datetime-edit-ampm-field { color: var(--text); }
+input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
 
-
-
-/* =====================
-   UPCOMING EVENTS (clean)
-   — replace your entire events CSS with this
-===================== */
-
-/* default accent for every month group */
-.card.events .month-group {
-  --month-accent: var(--accent);   /* will be overridden from JS when urgent */
-  margin-top: 18px;
-                   /* a little extra gap below “Date” */
-}
-
+/* =========================================================
+   Upcoming Events (clean card & progress)
+========================================================= */
+.card.events .month-group { --month-accent: var(--accent); margin-top: 18px; }
 .card.events .month-group .month-title {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding: 6px 12px;
-  margin: 8px 0 12px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-
-  /* tie text color to the same variable the bars use */
+  position: sticky; top: 0; z-index: 1;
+  padding: 6px 12px; margin: 8px 0 12px;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
   color: var(--month-accent);
-
-  /* subtle backdrop – uses the same color, low alpha */
-  background: linear-gradient(
-    90deg,
-    color-mix(in oklab, var(--month-accent) 15%, transparent) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, color-mix(in oklab, var(--month-accent) 15%, transparent) 0%, transparent 100%);
   border-radius: 6px;
 }
-
-/* left strip also uses the same variable */
 .card.events .month-group .month-title::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--month-accent);
-  border-radius: 3px 0 0 3px;
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--month-accent); border-radius: 3px 0 0 3px;
 }
-
-/* if you want extra fallback where color-mix isn't supported */
 @supports not (background: color-mix(in oklab, white 50%, black)) {
-  .card.events .month-group .month-title {
-    background: rgba(120, 170, 255, 0.12); /* mild, generic */
-  }
+  .card.events .month-group .month-title { background: rgba(120, 170, 255, 0.12); }
 }
-
-/* Glass event card */
 .event-item{
-  border-radius: 14px;
-  padding: 12px 12px 10px;
+  border-radius: 14px; padding: 12px 14px 10px;  /* +2px right padding to avoid visual crop */
   margin: 10px 0;
   background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
   box-shadow: 0 2px 10px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04);
@@ -937,48 +398,19 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 .event-item.appear{ opacity:1; transform:translateY(0); }
 .event-item:hover{ transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,.25); }
 
-/* Head row: title + badges */
-.event-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+/* keep right edge from looking cropped when the card scrolls */
+.card.events { scrollbar-gutter: stable both-edges; padding-right: 6px; }
 
-  flex-wrap: wrap;    /* ✅ allow wrapping instead of clipping */
-}
-
-.event-name {
-  font-weight: 800;
-  letter-spacing: .2px;
-
-  flex: 1 1 auto;     /* ✅ let the title shrink/wrap */
-  min-width: 0;       /* ✅ prevents overflow pushing pills out */
-  word-break: break-word;
-}
-
-.badge {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.08);
-  color: var(--text);
-  white-space: nowrap;
-
-  flex: 0 0 auto;     /* ✅ pills stay compact */
-}
-
+.event-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap: wrap; }
+.event-name { font-weight:800; letter-spacing:.2px; flex:1 1 auto; min-width:0; word-break: break-word; }
+.badge { font-size:12px; padding:2px 8px; border-radius:999px; background: rgba(255,255,255,.08); color: var(--text); white-space: nowrap; flex:0 0 auto; }
 .badge.urgent { background: rgba(255,82,82,.18); color:#ff9a9a; }
-.badge.date   { opacity:.85; }
-
-
-/* Progress + actions */
-.progress-row{
-  display:grid; grid-template-columns: 1fr auto; align-items:center; gap:10px;
-}
+.badge.date { opacity:.85; }
+.progress-row{ display:grid; grid-template-columns: 1fr auto; align-items:center; gap:10px; }
 .progress-line{
   position:relative; height:6px; border-radius:999px; overflow:hidden;
-  background: rgba(255,255,255,.07);
-  direction: rtl;      /* fill from right */
+  background: rgba(255,255,255,.07); direction: rtl;
+  margin-right: 2px;                 /* tiny cushion on the right */
 }
 .progress-line > span{
   display:block; height:100%; width:0%;
@@ -991,35 +423,18 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   background: linear-gradient(90deg, #ff6b6b, #ff3b3b);
   box-shadow: 0 0 12px rgba(255,90,90,.55);
 }
-
-/* Meta line */
 .event-meta{ margin-top:8px; font-size:13px; color:var(--muted); }
 .event-meta strong{ color:var(--text); }
-
-/* Action pills — force compact and ignore global .btn styles */
-.event-actions{
-  display:flex; gap:8px; align-items:center; white-space:nowrap;
-}
+.event-actions{ display:flex; gap:8px; align-items:center; white-space:nowrap; }
 .events .event-actions button{
-  all: unset;               /* nuke inherited .btn rules */
-  display:inline-block;
-  padding: 4px 10px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,.14);
-  color: var(--text);
-  font: 500 13px/1.1 inherit;
-  cursor: pointer;
-  user-select: none;
+  all: unset; display:inline-block; padding: 4px 10px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.14); color: var(--text);
+  font: 500 13px/1.1 inherit; cursor: pointer; user-select: none;
   transition: background .15s ease, border-color .15s ease, transform .05s ease;
 }
-.events .event-actions button:hover{
-  background: rgba(255,255,255,.06);
-  border-color: rgba(255,255,255,.22);
-}
+.events .event-actions button:hover{ background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22); }
 .events .event-actions button:active{ transform: translateY(1px); }
 .events .event-actions .delete{ color: var(--danger); }
-
-/* Date input look (kept minimal) */
 input[type="date"]{
   background:#0f1320; color:var(--text);
   border:1px solid rgba(255,255,255,.12);
@@ -1032,60 +447,143 @@ input[type="date"]::-webkit-datetime-edit-month-field,
 input[type="date"]::-webkit-datetime-edit-day-field,
 input[type="date"]::-webkit-datetime-edit-year-field{ color:var(--text); }
 input[type="date"]::-webkit-calendar-picker-indicator{ filter: invert(1); cursor:pointer; }
-
-/* ---------- Mobile ---------- */
+/* Events: Mobile tweaks */
 @media (max-width: 768px){
-  /* stack bar over actions to avoid cramped layout */
   .progress-row{ grid-template-columns: 1fr; gap:8px; }
   .event-actions{ gap:6px; }
-  .events .event-actions button{
-    padding: 4px 8px;
-    font-size: 12px;
-    line-height: 1.05;         /* prevents tall/fat pills */
-    border-radius: 9px;
-  }
+  .events .event-actions button{ padding: 4px 8px; font-size: 12px; line-height: 1.05; border-radius: 9px; }
   .progress-line{ height:4px; }
 }
 
-
-/* =========================
-   Auth overlay
-========================= */
+/* =========================================================
+   Auth Overlay
+========================================================= */
 .auth-overlay {
-  position: fixed;
-  inset: 0;
-  display: none;               /* JS toggles to flex */
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;               /* higher than dialogs/cards */
-  backdrop-filter: blur(6px);
-  background: rgba(0,0,0,.45);
+  position: fixed; inset: 0; display: none;
+  align-items: center; justify-content: center; z-index: 9999;
+  backdrop-filter: blur(6px); background: rgba(0,0,0,.45);
 }
-
 .auth-card {
   width: min(520px, 92vw);
-  padding: 20px;
-  border-radius: 12px;
+  padding: 20px; border-radius: 12px;
   background: rgba(22, 28, 36, 0.9);
   box-shadow: 0 10px 40px rgba(0,0,0,.4);
 }
-
 .auth-card h2 { margin: 0 0 4px 0; }
 .auth-card .muted { color: var(--muted); margin: 0 0 12px 0; }
-
 .auth-card input[type="password"] {
-  width: 100%;
-  background: #0f1320;
-  color: var(--text);
+  width: 100%; background: #0f1320; color: var(--text);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  padding: 10px 12px;
-  outline: none;
-  margin-bottom: 10px;
+  border-radius: 10px; padding: 10px 12px; outline: none; margin-bottom: 10px;
+}
+.auth-card .remember { display:flex; align-items:center; gap:8px; margin: 6px 0 12px 0; color: var(--muted); }
+
+/* =========================================================
+   Desktop Enhancements: Scrollable Routine & Events
+========================================================= */
+@media (min-width: 901px) {
+  .card.routine, .card.events { max-height: 75vh; overflow-y: auto; }
+  .card.routine, .card.events { scrollbar-gutter: stable both-edges; } /* keeps a clean right gap */
+  .card.routine::-webkit-scrollbar, .card.events::-webkit-scrollbar { width: 6px; }
+  .card.routine::-webkit-scrollbar-thumb, .card.events::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.15); border-radius: 3px; }
+  .card.routine::-webkit-scrollbar-track, .card.events::-webkit-scrollbar-track { background: transparent; }
+  .card.routine, .card.events { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent; }
 }
 
-.auth-card .remember {
-  display: flex; align-items: center; gap: 8px;
-  margin: 6px 0 12px 0;
-  color: var(--muted);
+/* =========================================================
+   Mobile Layout (cards alignment + routine carousel)
+========================================================= */
+@media (max-width: 900px) {
+  .overlay { grid-template-columns: 1fr; }
+
+  /* All cards aligned (symmetrical sides) */
+  .card.notes, .card.counter, .card.routine, .card.events {
+    position: static;
+    width: 100%;
+    margin: 12px auto 0;
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  /* Swipeable routine carousel (JS centers today's slide) */
+  .routine-carousel {
+    display: flex;
+    gap: 12px;
+    padding: 8px 10px 14px;   /* matches card side margins */
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-inline: 10px;  /* gives a nice end gap on both sides */
+  }
+  .routine-carousel::-webkit-scrollbar { height: 6px; }
+  .routine-carousel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 999px; }
+  .routine-carousel { scrollbar-width: thin; }
+
+  .day-slide {
+    flex: 0 0 calc(100% - 20px); /* full width minus card side margins */
+    scroll-snap-align: center;
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 8px 24px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.04);
+    padding: 14px 16px;
+  }
+  .day-slide.today {
+    border-color: color-mix(in oklab, var(--accent) 45%, rgba(255,255,255,.10));
+    background: linear-gradient(180deg, rgba(92,200,255,.10), rgba(255,255,255,.03));
+  }
+
+  .day-slide .day-head { margin-bottom: 8px; display:flex; justify-content:space-between; align-items:center; }
+  .day-slide .day-title { font-size: 16px; font-weight: 800; }
+  .day-slide .day-count { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.10); }
+
+  .day-slide .timeline { position: relative; padding-left: 18px; }
+  .day-slide .timeline::before {
+    content:""; position:absolute; left:8px; top:0; bottom:0; width:2px; border-radius:2px;
+    background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+  }
+  .day-slide .class-item { display:flex; flex-direction:column; gap:6px; padding:8px 0 12px; position:relative; }
+  .day-slide .class-item .dot {
+    position:absolute; left:-10px; top:12px; width:10px; height:10px; border-radius:50%;
+    background: var(--accent); box-shadow: 0 0 0 3px rgba(92,200,255,.18), 0 0 12px rgba(92,200,255,.55);
+  }
+  .day-slide .time-pill { font-size:12px; padding:2px 8px; border-radius:999px; background: rgba(255,255,255,.08); }
+  .day-slide .subject   { font-size:14px; font-weight:600; line-height:1.35; word-break: break-word; }
 }
+
+/* =========================================================
+   Make Routine dialog — weekday chips horizontal + sky-blue
+========================================================= */
+#weekdayGrid {
+  display: flex;
+  gap: 8px;
+  flex-wrap: nowrap;                 /* stay in one line */
+  overflow-x: auto;                  /* scroll horizontally on small phones */
+  padding: 6px 2px 4px;
+  margin-bottom: 10px;
+  scrollbar-gutter: stable;          /* keep right gap clean */
+}
+#weekdayGrid label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.16);
+  color: var(--accent);              /* sky-blue text, easy to spot */
+  background: rgba(92,200,255,.10);
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 13px;
+  user-select: none;
+}
+#weekdayGrid input[type="checkbox"] { display: none; }
+#weekdayGrid label:has(> input[type="checkbox"]:checked) {
+  background: rgba(0,0,0,.45);
+  border-color: rgba(92,200,255,.65);
+  color: var(--accent);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.5);
+}}
+
+
+
